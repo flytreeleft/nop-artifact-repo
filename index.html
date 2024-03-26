@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/logo.png" />
+    <title>Nop 构建产物仓库使用说明</title>
+
+    <script>
+      window.ZeroMdConfig = {
+        markedUrl: './assets/marked.min.js',
+        prismUrl: [
+          ['./assets/prism.min.js', 'data-manual'],
+          './assets/prism-autoloader.min.js'
+        ],
+        cssUrls: ['./assets/github-markdown.min.css', './assets/prism.min.css']
+      };
+    </script>
+    <script type="module" src="./assets/zero-md.min.js"></script>
+    <style>
+      zero-md {
+        margin: 2rem 10rem;
+      }
+    </style>
+  </head>
+  <body>
+    <zero-md src="README.md"> 页面加载中，请耐心等待 ... </zero-md>
+  </body>
+</html>
