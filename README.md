@@ -26,7 +26,7 @@ Nop 构建产物仓库使用说明
 
 安装后需要清空 IDEA 缓存并重启：`File -> Invalidate Caches...`。
 
-在启动调试时，需要通过 `XLangDebug` 运行调试代码（仅对 `#main` 函数有效）：
+在启动调试时，需要选择 `XLangDebug` （注意，其仅对 `#main` 函数有效）：
 
 ![](./assets/image/idea-xlang-debug.png)
 
