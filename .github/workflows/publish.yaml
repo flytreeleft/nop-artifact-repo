@@ -36,7 +36,7 @@ jobs:
             clean install
 
       - name: Build IDEA plugin
-        working-directory: nop-idea-plugin
+        working-directory: code/nop-idea-plugin
         run: |
           bash ./gradlew buildPlugin
 
