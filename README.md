@@ -37,6 +37,7 @@ Nop 构建产物仓库使用说明
 并在控制台执行相关命令：
 
 ```bash
+# 注意，请根据当前运行环境修改 JDK 17+ 的安装路径
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 
 ${JAVA_HOME}/bin/java \
@@ -76,7 +77,10 @@ ${JAVA_HOME}/bin/java \
       <!-- ... -->
     </repositories>
     <pluginRepositories>
-      <!-- Note: Nop Codegen 是 Maven 插件，需要在插件仓库中也配置上 -->
+      <!--
+      Note: Nop Codegen 会被作为 Maven 插件使用，
+            故而，需要在插件仓库中也配置上
+      -->
       <pluginRepository>
         <id>nop-repo</id>
         <url>https://nop.repo.crazydan.io</url>
