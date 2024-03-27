@@ -1,16 +1,17 @@
-# Nop 发布包仓库（非官方）使用说明
+# Nop 组件包仓库（非官方）使用说明
 
 ![仓库构建状态](https://github.com/flytreeleft/nop-artifact-repo/actions/workflows/publish.yaml/badge.svg)
 
-本仓库通过 Github Action 自动定时（每日凌晨 2 点）构建 Nop 官方源码，当前构建信息如下：
+最新的构建信息如下：
 
-- 构建开始时间：`%build_at%`（总耗时 `%build_period%` 分钟）
-- 发布包版本号：`%version%`
-- 代码提交记录：[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)
+- 构建计划：每日凌晨 2 点
+- 最近构建时间：`%build_at%`，构建总耗时 `%build_period%` 分钟
+- 当前发布包版本号：`%version%`
+- 所构建代码 Commit ID：[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)
 
 > 该仓库仅提供最后一次构建的产物，不保留既往构建产物，不能通过时间戳引入以前的构建版本。
 
-注意，以下工程的构建包未发布至本仓库（这些都是演示用的，不作为外部依赖引入）：
+注意，以下 Nop 工程模块的构建包未发布至本仓库（这些都是演示用的，不作为外部依赖引入）：
 
 ```ini
 tests
@@ -20,6 +21,13 @@ tests
 nop-all-for-spring
 nop-spring-demo-no-orm
 ```
+
+本仓库通过 Github Action 自动构建最新的
+[Nop 源码](https://github.com/entropy-cloud/nop-entropy/)，并托管于
+[Netlify](https://app.netlify.com) 之上：
+
+- 本仓库站点源码: https://github.com/crazydan-studio/nop-repo
+- 本仓库备用地址: https://crazydan-studio.github.io/nop-repo
 
 ## 目录导航
 
@@ -31,13 +39,17 @@ nop-spring-demo-no-orm
 
 ## 免责声明
 
-本仓库为个人构建的 Nop 包专用仓库，并非官方的发布包仓库，其目的是方便有需要的朋友快速开始尝鲜或进行项目开发。
+本仓库由 [Crazydan Studio](https://studio.crazydan.org/) 团队构建并维护，
+除了方便本团队的日常开发之外，也向 [Nop 开源社区](https://gitee.com/nop-platform)免费开放，
+社区内任何有需要的朋友均可自由使用，没有任何限制和前提条件。
 
-因此，因使用本仓库所产生的任何风险和损失均需由您自行承担，本人将不承担因您的行为所造成的任何后果，
+该仓库并非 Nop 官方仓库，也不是 Nop 开源社区运营的仓库，
+因此，因使用本仓库所产生的任何风险和损失均需由您自行承担，
+本团队及其成员将不承担因您的任何行为所造成的任何后果。
 若您继续使用本仓库，则默认视为您已明确知晓相关风险，并承诺后果自负。
 
-建议您在商业产品中慎重使用本仓库，优先选择自行构建官方[源代码](https://gitee.com/canonical-entropy/nop-entropy)，
-或等待官方仓库的发布。
+建议您在商业产品中慎重使用本仓库，优先选择自行构建
+[Nop 源码](https://gitee.com/canonical-entropy/nop-entropy)，或等待官方仓库的发布。
 
 若您有关于 Nop 开发相关的问题，请移步至
 [Nop Issues](https://gitee.com/canonical-entropy/nop-entropy/issues) 页面提问。
@@ -86,7 +98,7 @@ ${JAVA_HOME}/bin/java \
     <repositories>
       <repository>
         <id>nop-repo</id>
-        <url>https://nop.repo.crazydan.io</url>
+        <url>https://nop.repo.crazydan.io/</url>
         <releases>
           <enabled>true</enabled>
           <updatePolicy>always</updatePolicy>
@@ -108,7 +120,7 @@ ${JAVA_HOME}/bin/java \
       -->
       <pluginRepository>
         <id>nop-repo</id>
-        <url>https://nop.repo.crazydan.io</url>
+        <url>https://nop.repo.crazydan.io/</url>
         <releases>
           <enabled>true</enabled>
           <updatePolicy>always</updatePolicy>
