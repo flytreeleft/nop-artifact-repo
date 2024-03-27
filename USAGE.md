@@ -13,6 +13,7 @@
 tests
 *-demo
 *-demo2
+*-codegen
 nop-all-for-spring
 nop-spring-demo-no-orm
 ```

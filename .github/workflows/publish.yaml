@@ -47,7 +47,7 @@ jobs:
             --file pom.xml \
             clean deploy
 
-          NOP_VERSION="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -o)"
+          NOP_VERSION="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
           NOP_CLI_JAR_PATH="$(cd ${NOP_DIST_DIR} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')"
           NOP_CLI_JAR_NAME="$(basename ${NOP_CLI_JAR_PATH})"
 
