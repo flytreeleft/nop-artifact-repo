@@ -20,18 +20,20 @@
       // https://advancedfrontends.com/how-to-use-named-anchors-with-shadow-dom/
       window.customElements.whenDefined('zero-md').then(() => {
         const zeroMdRoot = document.querySelector('zero-md').shadowRoot;
+        const scrollTo = (href) => {
+          if (href && href.startsWith('#')) {
+            href = decodeURIComponent(href);
+
+            const target = zeroMdRoot.querySelector(href);
+            target && target.scrollIntoView({ behavior: 'smooth' });
+          }
+        };
 
         zeroMdRoot.addEventListener('click', (e) => {
-          let href = e.target.getAttribute('href');
-          if (href.startsWith('#')) {
-            e.preventDefault();
-
-            href = decodeURIComponent(href);
-            zeroMdRoot.querySelector(href).scrollIntoView({
-              behavior: 'smooth'
-            });
-          }
+          let href = e.target && e.target.getAttribute('href');
+          scrollTo(href);
         });
+        setTimeout(() => scrollTo(window.location.hash), 500);
       });
     </script>
     <script type="module" src="./assets/zero-md.min.js"></script>
