@@ -34,7 +34,9 @@ jobs:
         run: |
           NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
           NOP_LATEST_COMMIT="$(git log --format="%H" -n 1)"
+          NOP_BUILD_AT="$(date '+%Y-%m-%d %H:%M:%S')"
 
+          echo "$(date +%s)" > build_timestamp
           rm -rf ${NOP_DIST_DIR}/io/github/entropy-cloud || echo "Ignore"
 
           # 部署构建产物到本地指定目录
@@ -51,6 +53,7 @@ jobs:
           NOP_CLI_JAR_PATH="$(cd ${NOP_DIST_DIR} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')"
           NOP_CLI_JAR_NAME="$(basename ${NOP_CLI_JAR_PATH})"
 
+          sed "s|%build_at%|${NOP_BUILD_AT}|g" -i ${NOP_DIST_DIR}/USAGE.md
           sed "s|%version%|${NOP_VERSION}|g" -i ${NOP_DIST_DIR}/USAGE.md
           sed "s|%latest_commit%|${NOP_LATEST_COMMIT}|g" -i ${NOP_DIST_DIR}/USAGE.md
           sed "s|%cli_jar_path%|${NOP_CLI_JAR_PATH}|g" -i ${NOP_DIST_DIR}/USAGE.md
@@ -69,6 +72,11 @@ jobs:
 
           cp build/distributions/${NOP_IDEA_PLUGIN_NAME} ${NOP_DIST_DIR}/
 
+          NOP_BUILD_AT="$(cat ../build_timestamp)"
+          NOP_BUILD_END="$(date +%s)"
+          NOP_BUILD_PERIOD="$(echo "scale=2; ($NOP_BUILD_END - $NOP_BUILD_AT) / 60" | bc)"
+
+          sed "s|%build_period%|${NOP_BUILD_PERIOD}|g" -i ${NOP_DIST_DIR}/USAGE.md
           sed "s|%idea_plugin_name%|${NOP_IDEA_PLUGIN_NAME}|g" -i ${NOP_DIST_DIR}/USAGE.md
 
       - name: Commit artifacts

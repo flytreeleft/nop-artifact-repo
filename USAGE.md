@@ -2,8 +2,11 @@
 
 ![仓库构建状态](https://github.com/flytreeleft/nop-artifact-repo/actions/workflows/publish.yaml/badge.svg)
 
-本仓库通过 Github Action 自动定时（每日凌晨 2 点）构建 Nop 官方源码，当前构建的源码提交记录为：
-[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)（版本号为 `%version%`）。
+本仓库通过 Github Action 自动定时（每日凌晨 2 点）构建 Nop 官方源码，当前构建信息如下：
+
+- 构建开始时间：`%build_at%`（总耗时 `%build_period%` 分钟）
+- 发布包版本号：`%version%`
+- 代码提交记录：[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)
 
 > 该仓库仅提供最后一次构建的产物，不保留既往构建产物，不能通过时间戳引入以前的构建版本。
 
