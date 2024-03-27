@@ -35,23 +35,17 @@ jobs:
           NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
           NOP_LATEST_COMMIT="$(git log --format="%H" -n 1)"
 
-          mkdir -p ${HOME}/.m2/repository
-          rm -rf ${HOME}/.m2/repository/io/github/entropy-cloud
-          mkdir -p ${NOP_DIST_DIR}/io/github
-          rm -rf ${NOP_DIST_DIR}/io/github/entropy-cloud
+          rm -rf ${NOP_DIST_DIR}/io/github/entropy-cloud || echo "Ignore"
 
+          # 部署构建产物到本地指定目录
+          # https://dzone.com/articles/using-github-as-maven-repository
+          # https://stackoverflow.com/questions/12435283/adding-a-maven-distribution-repository-on-the-command-line#answer-39439854
           mvn -B \
-            -Dmaven.repo.local=${HOME}/.m2/repository \
-            -DskipTests -Dquarkus.package.type=uber-jar \
+            -DaltDeploymentRepository=internal::default::file://${NOP_DIST_DIR} \
+            -DskipTests \
+            -Dquarkus.package.type=uber-jar \
             --file pom.xml \
-            clean install
-
-          cp -r ${HOME}/.m2/repository/io/github/entropy-cloud ${NOP_DIST_DIR}/io/github/
-
-          for file in `find ${NOP_DIST_DIR}/io/github -name maven-metadata-local.xml`; do
-            sed 's|<localCopy>true</localCopy>|<localCopy>false</localCopy>|g' -i $file
-            mv $file $(echo $file | sed 's/-local.xml/.xml/g')
-          done
+            clean deploy
 
           NOP_CLI_JAR_PATH=$(cd ${NOP_DIST_DIR} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')
           NOP_CLI_JAR_NAME=$(basename ${NOP_CLI_JAR_PATH})

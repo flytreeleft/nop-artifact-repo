@@ -77,12 +77,12 @@ ${JAVA_HOME}/bin/java \
         <releases>
           <enabled>true</enabled>
           <updatePolicy>always</updatePolicy>
-          <checksumPolicy>ignore</checksumPolicy>
+          <checksumPolicy>fail</checksumPolicy>
         </releases>
         <snapshots>
           <enabled>true</enabled>
           <updatePolicy>always</updatePolicy>
-          <checksumPolicy>ignore</checksumPolicy>
+          <checksumPolicy>fail</checksumPolicy>
         </snapshots>
       </repository>
 
@@ -99,12 +99,12 @@ ${JAVA_HOME}/bin/java \
         <releases>
           <enabled>true</enabled>
           <updatePolicy>always</updatePolicy>
-          <checksumPolicy>ignore</checksumPolicy>
+          <checksumPolicy>fail</checksumPolicy>
         </releases>
         <snapshots>
           <enabled>true</enabled>
           <updatePolicy>always</updatePolicy>
-          <checksumPolicy>ignore</checksumPolicy>
+          <checksumPolicy>fail</checksumPolicy>
         </snapshots>
       </pluginRepository>
 
