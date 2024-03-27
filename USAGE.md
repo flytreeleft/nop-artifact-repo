@@ -4,6 +4,8 @@ Nop 发布包仓库（非官方）使用说明
 本仓库通过 Github Action 自动定时（每日凌晨 2 点）构建 Nop 官方源码，
 当前构建的源码版本为：[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)。
 
+> 该仓库仅提供最后一次构建的产物，不保留既往构建产物，不能通过时间戳引入以前的构建版本。
+
 注意，以下工程的构建包未发布至本仓库（都是演示用的，不作为外部依赖引入）：
 
 ```ini
