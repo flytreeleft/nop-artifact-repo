@@ -1,6 +1,3 @@
-/.m2/
-/code/
-
 **/resolver-status.properties
 **/_remote.repositories
 **/*.lastUpdated
