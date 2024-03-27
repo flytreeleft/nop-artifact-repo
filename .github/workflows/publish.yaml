@@ -3,8 +3,8 @@ name: Publish Artifacts to Netlify
 on:
   push:
     branches: ['master']
-  pull_request:
-    branches: ['master']
+  schedule:
+    - cron: '0 2 * * *'
 
 jobs:
   build:
@@ -16,6 +16,11 @@ jobs:
         with:
           repository: entropy-cloud/nop-entropy
           path: code
+      - name: Check artifact repo
+        uses: actions/checkout@v4
+        with:
+          repository: flytreeleft/nop-artifact-repo
+          path: dist
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -27,35 +32,57 @@ jobs:
       - name: Build packages
         working-directory: code
         run: |
-          echo "NOP_LATEST_COMMIT=$(git log --format="%H" -n 1)" >> ${GITHUB_ENV}
-          mkdir -p ${GITHUB_WORKSPACE}/.m2/repository
+          NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
+          NOP_LATEST_COMMIT="$(git log --format="%H" -n 1)"
+
+          mkdir -p ${HOME}/.m2/repository
+          rm -rf ${HOME}/.m2/repository/io/github/entropy-cloud
+          mkdir -p ${NOP_DIST_DIR}/io/github
+          rm -rf ${NOP_DIST_DIR}/io/github/entropy-cloud
+
           mvn -B \
-            -Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2/repository \
+            -Dmaven.repo.local=${HOME}/.m2/repository \
             -DskipTests -Dquarkus.package.type=fast-jar \
             --file pom.xml \
             clean install
 
+          cp -r ${HOME}/.m2/repository/io/github/entropy-cloud ${NOP_DIST_DIR}/io/github/
+
+          for file in `find ${NOP_DIST_DIR}/io/github -name maven-metadata-local.xml`; do
+            mv $file $(echo $file | sed 's/-local.xml/.xml/g')
+          done
+
+          NOP_CLI_JAR_PATH=$(cd ${NOP_DIST_DIR} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')
+          NOP_CLI_JAR_NAME=$(basename ${NOP_CLI_JAR_PATH})
+
+          sed "s|%latest_commit%|${NOP_LATEST_COMMIT}|g" -i ${NOP_DIST_DIR}/README.md
+          sed "s|%cli_jar_path%|${NOP_CLI_JAR_PATH}|g" -i ${NOP_DIST_DIR}/README.md
+          sed "s|%cli_jar_name%|${NOP_CLI_JAR_NAME}|g" -i ${NOP_DIST_DIR}/README.md
+
       - name: Build IDEA plugin
         working-directory: code/nop-idea-plugin
         run: |
+          NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
+
+          rm -f ${NOP_DIST_DIR}/nop-idea-plugin-*.zip
+
           bash ./gradlew buildPlugin
 
-      - name: Copy artifacts
-        run: |
-          mkdir -p io/github
-          cp code/nop-idea-plugin/build/distributions/nop-idea-plugin-*s.zip .
-          rm -rf io/github/entropy-cloud
-          cp -r .m2/repository/io/github/entropy-cloud io/github/
+          NOP_IDEA_PLUGIN_NAME=$(basename `ls build/distributions/nop-idea-plugin-*.zip`)
 
-          for file in `find io/github -name maven-metadata-local.xml`; do
-            mv $file $(echo $file | sed 's/-local//g')
-          done
+          cp build/distributions/${NOP_IDEA_PLUGIN_NAME} ${NOP_DIST_DIR}/
+
+          sed "s|%idea_plugin_name%|${NOP_IDEA_PLUGIN_NAME}|g" -i ${NOP_DIST_DIR}/README.md
 
       - name: Commit artifacts
+        working-directory: dist
+        # Note：推送至当前仓库，需在仓库配置中启用 Action 的写权限
         run: |
-          sed "s|%latest_commit%|${NOP_LATEST_COMMIT}|g" -i README.md
           git config user.name "$(git log --format='%an' HEAD^!)"
           git config user.email "$(git log --format='%ae' HEAD^!)"
+
+          git branch -D dist || echo "Ignore"
+          git checkout -B dist
           git add .
           git commit -m "Update artifacts"
-          git push
+          git push origin dist -f
