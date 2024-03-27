@@ -34,7 +34,7 @@ jobs:
         run: |
           NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
           NOP_LATEST_COMMIT="$(git log --format="%H" -n 1)"
-          NOP_BUILD_AT="$(date '+%Y-%m-%d %H:%M:%S')"
+          NOP_BUILD_AT="$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S %:z')"
 
           echo "$(date +%s)" > build_timestamp
           rm -rf ${NOP_DIST_DIR}/io/github/entropy-cloud || echo "Ignore"
