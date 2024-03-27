@@ -42,13 +42,14 @@ jobs:
 
           mvn -B \
             -Dmaven.repo.local=${HOME}/.m2/repository \
-            -DskipTests -Dquarkus.package.type=fast-jar \
+            -DskipTests -Dquarkus.package.type=uber-jar \
             --file pom.xml \
             clean install
 
           cp -r ${HOME}/.m2/repository/io/github/entropy-cloud ${NOP_DIST_DIR}/io/github/
 
           for file in `find ${NOP_DIST_DIR}/io/github -name maven-metadata-local.xml`; do
+            sed 's|<localCopy>true</localCopy>|<localCopy>false</localCopy>|g' -i $file
             mv $file $(echo $file | sed 's/-local.xml/.xml/g')
           done
 
