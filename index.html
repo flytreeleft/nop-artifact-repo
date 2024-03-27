@@ -15,6 +15,23 @@
         ],
         cssUrls: ['./assets/github-markdown.min.css', './assets/prism.min.css']
       };
+
+      // 支持在 Shadow 中做锚点定位
+      window.customElements.whenDefined('zero-md').then(() => {
+        const zeroMdRoot = document.querySelector('zero-md').shadowRoot;
+
+        document.addEventListener('click', (e) => {
+          const target = e.target;
+          if (target.matches('a[href^="#"]')) {
+            e.preventDefault();
+            zeroMdRoot
+              .querySelector(target.getAttribute('href'))
+              .scrollIntoView({
+                behavior: 'smooth'
+              });
+          }
+        });
+      });
     </script>
     <script type="module" src="./assets/zero-md.min.js"></script>
     <style>
