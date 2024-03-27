@@ -1,6 +1,8 @@
 Nop 发布包仓库（非官方）
 ===================================
 
+![仓库构建状态](https://github.com/flytreeleft/nop-artifact-repo/actions/workflows/publish.yaml/badge.svg)
+
 > 有关该发布包仓库的使用说明，请祥见 https://nop.repo.crazydan.io/
 
 本 Git 仓库包含 `master` 和 `dist` 分支，

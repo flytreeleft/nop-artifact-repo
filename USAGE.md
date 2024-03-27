@@ -1,12 +1,13 @@
-Nop 发布包仓库（非官方）使用说明
-====================================
+# Nop 发布包仓库（非官方）使用说明
 
-本仓库通过 Github Action 自动定时（每日凌晨 2 点）构建 Nop 官方源码，
-当前构建的源码版本为：[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)。
+![仓库构建状态](https://github.com/flytreeleft/nop-artifact-repo/actions/workflows/publish.yaml/badge.svg)
+
+本仓库通过 Github Action 自动定时（每日凌晨 2 点）构建 Nop 官方源码，当前构建的源码提交记录为：
+[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)（版本号为 `%version%`）。
 
 > 该仓库仅提供最后一次构建的产物，不保留既往构建产物，不能通过时间戳引入以前的构建版本。
 
-注意，以下工程的构建包未发布至本仓库（都是演示用的，不作为外部依赖引入）：
+注意，以下工程的构建包未发布至本仓库（这些都是演示用的，不作为外部依赖引入）：
 
 ```ini
 tests
@@ -14,9 +15,15 @@ tests
 *-demo2
 nop-all-for-spring
 nop-spring-demo-no-orm
-nop-web-site
-nop-web-amis-editor
 ```
+
+## 目录导航
+
+- [免责声明](#免责声明)
+- [Nop IDEA 插件安装](#nop-idea-插件安装)
+- [Nop Cli 工具使用](#nop-cli-工具使用)
+- [Maven 配置](#maven-配置)
+- [依赖引入](#依赖引入)
 
 ## 免责声明
 
@@ -112,4 +119,45 @@ ${JAVA_HOME}/bin/java \
 
       <!-- ... -->
     </pluginRepositories>
+```
+
+## 依赖引入
+
+首先，在 Maven 工程的父 `pom.xml` 中以 `parent` 方式引入 Nop 及其默认构建配置：
+
+```xml
+<project>
+  <!-- ... -->
+
+  <parent>
+    <groupId>io.github.entropy-cloud</groupId>
+    <artifactId>nop-entropy</artifactId>
+    <version>%version%</version>
+  </parent>
+
+  <!-- ... -->
+</project>
+```
+
+接下来，在各个 Maven 子模块中仅按需依赖 Nop 的相关组件即可，无需指定组件版本号，如：
+
+```xml
+<project>
+  <!-- ... -->
+
+  <dependencies>
+    <dependency>
+      <groupId>io.github.entropy-cloud</groupId>
+      <artifactId>nop-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.entropy-cloud</groupId>
+      <artifactId>nop-orm</artifactId>
+    </dependency>
+
+    <!-- ... -->
+  </dependencies>
+
+  <!-- ... -->
+</project>
 ```
