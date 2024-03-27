@@ -17,18 +17,19 @@
       };
 
       // 支持在 Shadow 中做锚点定位
+      // https://advancedfrontends.com/how-to-use-named-anchors-with-shadow-dom/
       window.customElements.whenDefined('zero-md').then(() => {
         const zeroMdRoot = document.querySelector('zero-md').shadowRoot;
 
-        document.addEventListener('click', (e) => {
-          const target = e.target;
-          if (target.matches('a[href^="#"]')) {
+        zeroMdRoot.addEventListener('click', (e) => {
+          let href = e.target.getAttribute('href');
+          if (href.startsWith('#')) {
             e.preventDefault();
-            zeroMdRoot
-              .querySelector(target.getAttribute('href'))
-              .scrollIntoView({
-                behavior: 'smooth'
-              });
+
+            href = decodeURIComponent(href);
+            zeroMdRoot.querySelector(href).scrollIntoView({
+              behavior: 'smooth'
+            });
           }
         });
       });
