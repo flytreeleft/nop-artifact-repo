@@ -47,9 +47,11 @@ jobs:
             --file pom.xml \
             clean deploy
 
-          NOP_CLI_JAR_PATH=$(cd ${NOP_DIST_DIR} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')
-          NOP_CLI_JAR_NAME=$(basename ${NOP_CLI_JAR_PATH})
+          NOP_VERSION="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -o)"
+          NOP_CLI_JAR_PATH="$(cd ${NOP_DIST_DIR} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')"
+          NOP_CLI_JAR_NAME="$(basename ${NOP_CLI_JAR_PATH})"
 
+          sed "s|%version%|${NOP_VERSION}|g" -i ${NOP_DIST_DIR}/USAGE.md
           sed "s|%latest_commit%|${NOP_LATEST_COMMIT}|g" -i ${NOP_DIST_DIR}/USAGE.md
           sed "s|%cli_jar_path%|${NOP_CLI_JAR_PATH}|g" -i ${NOP_DIST_DIR}/USAGE.md
           sed "s|%cli_jar_name%|${NOP_CLI_JAR_NAME}|g" -i ${NOP_DIST_DIR}/USAGE.md
@@ -63,7 +65,7 @@ jobs:
 
           bash ./gradlew buildPlugin
 
-          NOP_IDEA_PLUGIN_NAME=$(basename `ls build/distributions/nop-idea-plugin-*.zip`)
+          NOP_IDEA_PLUGIN_NAME="$(basename `ls build/distributions/nop-idea-plugin-*.zip`)"
 
           cp build/distributions/${NOP_IDEA_PLUGIN_NAME} ${NOP_DIST_DIR}/
 
