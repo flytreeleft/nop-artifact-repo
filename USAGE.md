@@ -6,7 +6,7 @@
 
 - 构建计划：每日凌晨 2 点
 - 最近构建时间：`%build_at%`，构建总耗时 `%build_period%` 分钟
-- 当前发布包版本号：`%version%`
+- 当前组件包版本号：`%version%`
 - 所构建代码 Commit ID：[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)
 
 > 该仓库仅提供最后一次构建的产物，不保留既往构建产物，不能通过时间戳引入以前的构建版本。

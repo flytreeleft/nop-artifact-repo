@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="/logo.png" />
+    <link rel="icon" href="./logo.png" />
     <title>Nop 组件包仓库（非官方）使用说明</title>
 
     <script>
@@ -18,34 +18,50 @@
     </script>
     <script type="module" src="./assets/zero-md.min.js"></script>
     <style>
-      zero-md {
-        margin: 2rem 5rem;
+      body {
+        padding: 2rem 5rem;
       }
       @media only screen and (max-width: 768px) {
-        zero-md {
-          margin: 2rem;
+        body {
+          padding: 2rem;
         }
+      }
+      zero-md .loading {
+        text-align: center;
+        font-size: 2rem;
       }
     </style>
   </head>
   <body>
     <zero-md src="USAGE.md" no-shadow="true">
-      页面加载中，请耐心等待 ...
+      <div class="loading">页面加载中，请耐心等待 ...</div>
     </zero-md>
 
     <script>
       const app = document.querySelector('zero-md');
+      const current_repo_url =
+        window.location.origin + window.location.pathname;
+      const default_repo_url = 'https://nop.repo.crazydan.io/';
+
       app.addEventListener('zero-md-rendered', (e) => {
-        if (
-          e.detail.stamped &&
-          e.detail.stamped.body &&
-          'https://nop.repo.crazydan.io/' != window.location.href
-        ) {
-          const html = app.innerHTML.replaceAll(
-            /https:\/\/nop.repo.crazydan.io\//g,
-            window.location.href
-          );
-          app.innerHTML = html;
+        if (!e.detail.stamped || !e.detail.stamped.body) {
+          return;
+        }
+        app.querySelector('.loading').remove();
+
+        if (default_repo_url != current_repo_url) {
+          setTimeout(() => {
+            app.querySelectorAll('code').forEach((code) => {
+              code.childNodes.forEach((e) => {
+                if (
+                  e.nodeType === Node.TEXT_NODE &&
+                  e.textContent === default_repo_url
+                ) {
+                  e.textContent = current_repo_url;
+                }
+              });
+            });
+          }, 500);
         }
       });
     </script>
