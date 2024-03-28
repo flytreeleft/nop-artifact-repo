@@ -42,6 +42,18 @@ jobs:
           echo "$(date +%s)" > build_timestamp
           rm -rf ${NOP_DIST_DIR}/io/github/entropy-cloud || echo "Ignore"
 
+          # 收集不需要部署发布包的模块：以 mvn --projects '!webapp' 形式排除指定模块
+          # https://blog.jdriven.com/2022/11/mastering-maven-exclude-modules-from-build/
+          IGNORE_MODULES="$(
+            grep -rl --include=pom.xml \
+              '<maven.deploy.skip>true</maven.deploy.skip>' . \
+            | sed 's|^\./||g; s|/pom.xml$||g; s|^|!|g' \
+            | tr '\n' ',' \
+            && find . -type d \( -name '*-demo' -o -name '*-demo2' \) \
+            | sed '/\/src\//d; /\/target\//d; s|^\./||g; s|^|!|g' \
+            | tr '\n' ','
+          )"
+
           # 部署构建产物到本地指定目录
           # https://dzone.com/articles/using-github-as-maven-repository
           # https://stackoverflow.com/questions/12435283/adding-a-maven-distribution-repository-on-the-command-line#answer-39439854
@@ -49,6 +61,7 @@ jobs:
             -DaltDeploymentRepository=internal::default::file://${NOP_DIST_DIR} \
             -DskipTests \
             -Dquarkus.package.type=uber-jar \
+            --projects="${IGNORE_MODULES}!tests,!nop-all-for-spring,!nop-demo/nop-spring-demo-no-orm" \
             --file pom.xml \
             clean deploy
 
