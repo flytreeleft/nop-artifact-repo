@@ -2,12 +2,12 @@
 
 ![仓库构建状态](https://github.com/crazydan-studio/nop-repo/actions/workflows/deploy.yaml/badge.svg)
 
-最新的构建信息如下：
+本仓库当前的构建信息如下：
 
-- 构建计划：每日凌晨 2 点
-- 最近构建时间：`%build_at%`，构建总耗时 `%build_period%` 分钟
-- 当前组件包版本号：`%version%`
-- 所构建代码 Commit ID：[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)
+- 每日构建计划：凌晨 2 点（东八区）
+- 当前构建开始时间：`%build_at%`，构建总耗时 `%build_period%` 分钟
+- 当前 Nop 组件包版本号：`%version%`
+- 当前 Nop 源码变更版本：[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)
 
 > 该仓库仅提供最后一次构建的产物，不保留既往构建产物，不能通过时间戳引入以前的构建版本。
 
@@ -26,9 +26,9 @@ nop-spring-demo-no-orm
 [Nop 源码](https://github.com/entropy-cloud/nop-entropy/)，并托管于
 [Netlify](https://app.netlify.com) 之上：
 
-- 本仓库主地址: https://nop.repo.crazydan.io
+- 本仓库主站点: https://nop.repo.crazydan.io
 - 本仓库备用站点: https://crazydan-studio.github.io/nop-repo
-- 本仓库站点源码: https://github.com/crazydan-studio/nop-repo
+- 本仓库源码: https://github.com/crazydan-studio/nop-repo
 
 ## 目录导航
 

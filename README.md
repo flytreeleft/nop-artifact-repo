@@ -3,7 +3,7 @@ Nop 组件包仓库（非官方）
 
 ![仓库构建状态](https://github.com/crazydan-studio/nop-repo/actions/workflows/deploy.yaml/badge.svg)
 
-> 有关该仓库的使用说明，请祥见[仓库站点](https://nop.repo.crazydan.io/)
+> 有关该仓库的使用说明，请祥见 [仓库站点](https://nop.repo.crazydan.io/)
 > （[备用地址](https://crazydan-studio.github.io/nop-repo)）
 
 本 Git 仓库包含 `master` 和 `dist` 分支，
