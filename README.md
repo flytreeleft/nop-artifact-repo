@@ -15,5 +15,9 @@ Nop 组件包仓库（非官方）
 故而，在克隆本 Git 仓库时仅需克隆 `master` 分支即可：
 
 ```bash
-git clone --branch master git@github.com:crazydan-studio/nop-repo.git
+# https://www.freecodecamp.org/chinese/news/git-clone-branch-how-to-clone-a-specific-branch/
+git clone \
+    --single-branch \
+    --branch master \
+    git@github.com:crazydan-studio/nop-repo.git
 ```
