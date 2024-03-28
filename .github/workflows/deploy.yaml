@@ -1,10 +1,11 @@
-name: Publish Artifacts to Netlify
+name: Deploy Nop Artifacts
 
 on:
   push:
     branches: ['master']
   schedule:
-    - cron: '0 2 * * *'
+    # Note：此为 UTC 时间，最终的执行时间需加上时区
+    - cron: '0 18 * * *'
 
 jobs:
   build:
@@ -16,10 +17,12 @@ jobs:
         with:
           repository: entropy-cloud/nop-entropy
           path: code
+
+      # 克隆当前仓库到 dist 目录，以便于收集发布产物并提交至 dist 分支
       - name: Check artifact repo
         uses: actions/checkout@v4
         with:
-          repository: flytreeleft/nop-artifact-repo
+          repository: '${{ github.repository }}'
           path: dist
 
       - name: Set up JDK 17

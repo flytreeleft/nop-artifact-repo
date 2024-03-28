@@ -1,6 +1,6 @@
 # Nop 组件包仓库（非官方）使用说明
 
-![仓库构建状态](https://github.com/flytreeleft/nop-artifact-repo/actions/workflows/publish.yaml/badge.svg)
+![仓库构建状态](https://github.com/crazydan-studio/nop-repo/actions/workflows/deploy.yaml/badge.svg)
 
 最新的构建信息如下：
 
@@ -26,8 +26,9 @@ nop-spring-demo-no-orm
 [Nop 源码](https://github.com/entropy-cloud/nop-entropy/)，并托管于
 [Netlify](https://app.netlify.com) 之上：
 
+- 本仓库主地址: https://nop.repo.crazydan.io
+- 本仓库备用站点: https://crazydan-studio.github.io/nop-repo
 - 本仓库站点源码: https://github.com/crazydan-studio/nop-repo
-- 本仓库备用地址: https://crazydan-studio.github.io/nop-repo
 
 ## 目录导航
 
