@@ -33,8 +33,8 @@ nop-spring-demo-no-orm
 ## 目录导航
 
 - [免责声明](#免责声明)
-- [Maven 配置](#maven-配置)
-- [Nop 组件引入](#nop-组件引入)
+- [Maven 仓库配置](#maven-仓库配置)
+- [Nop 组件依赖引入](#nop-组件依赖引入)
 - [Nop IDEA 插件安装](#nop-idea-插件安装)
 - [Nop Cli 工具使用](#nop-cli-工具使用)
 
@@ -55,7 +55,8 @@ nop-spring-demo-no-orm
 若您有关于 Nop 开发相关的问题，请移步至
 [Nop Issues](https://gitee.com/canonical-entropy/nop-entropy/issues) 页面提问。
 
-> 在站点 https://nop.crazydan.io/ 中也会分享一些开发经验，在开发过程中可以作为参考。
+> [Crazydan Studio](https://studio.crazydan.org/) 团队也会在
+> https://nop.crazydan.io/ 站点上分享开发经验，您可以在开发过程中以其作为参考。
 
 ## Nop IDEA 插件安装
 
@@ -93,7 +94,7 @@ ${JAVA_HOME}/bin/java \
 > `nop-codegen/src/main/resources/_vfs/nop/templates/orm`
 > 目录下的模板，`gen` 命令所生成的工程目录结构与该模板是一致的。
 
-## Maven 配置
+## Maven 仓库配置
 
 在 Maven 的配置文件 `conf/settings.xml` 中添加 Nop 仓库地址：
 
@@ -140,7 +141,7 @@ ${JAVA_HOME}/bin/java \
     </pluginRepositories>
 ```
 
-## Nop 组件引入
+## Nop 组件依赖引入
 
 首先，在 Maven 工程的父 `pom.xml` 中以 `parent` 方式引入 Nop 及其默认构建配置：
 
