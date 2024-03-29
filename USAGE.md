@@ -33,10 +33,10 @@ nop-spring-demo-no-orm
 ## 目录导航
 
 - [免责声明](#免责声明)
+- [Maven 配置](#maven-配置)
+- [Nop 组件引入](#nop-组件引入)
 - [Nop IDEA 插件安装](#nop-idea-插件安装)
 - [Nop Cli 工具使用](#nop-cli-工具使用)
-- [Maven 配置](#maven-配置)
-- [依赖引入](#依赖引入)
 
 ## 免责声明
 
@@ -54,6 +54,8 @@ nop-spring-demo-no-orm
 
 若您有关于 Nop 开发相关的问题，请移步至
 [Nop Issues](https://gitee.com/canonical-entropy/nop-entropy/issues) 页面提问。
+
+> 在站点 https://nop.crazydan.io/ 中也会分享一些开发经验，在开发过程中可以作为参考。
 
 ## Nop IDEA 插件安装
 
@@ -138,7 +140,7 @@ ${JAVA_HOME}/bin/java \
     </pluginRepositories>
 ```
 
-## 依赖引入
+## Nop 组件引入
 
 首先，在 Maven 工程的父 `pom.xml` 中以 `parent` 方式引入 Nop 及其默认构建配置：
 
