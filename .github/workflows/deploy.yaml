@@ -42,14 +42,15 @@ jobs:
           NOP_BUILD_LOG_FILE="${NOP_DIST_DIR}/USAGE.md"
           NOP_LATEST_COMMIT="$(git log --format="%H" -n 1)"
 
-          echo "${NOP_LATEST_COMMIT} ${NOP_BUILD_LOG_FILE}"
-          grep ${NOP_LATEST_COMMIT} ${NOP_BUILD_LOG_FILE} 2>&1 || echo ""
+          ls -al ${NOP_BUILD_LOG_FILE} || echo ""
+          head -n 15 ${NOP_BUILD_LOG_FILE} || echo ""
+          grep ${NOP_LATEST_COMMIT} ${NOP_BUILD_LOG_FILE} || echo ""
           # 若是没有最新的提交，则无需构建
           if [ -n "$(grep ${NOP_LATEST_COMMIT} ${NOP_BUILD_LOG_FILE})" ]; then
             echo "Ignore the building for commit ${NOP_LATEST_COMMIT}"
             echo "NOP_IGNORE_BUILDING=true" >> ${GITHUB_ENV}
           else
-            echo "Start the building for commit ${NOP_LATEST_COMMIT}"
+            echo "Continue the building for commit ${NOP_LATEST_COMMIT}"
             echo "NOP_IGNORE_BUILDING=false" >> ${GITHUB_ENV}
           fi
 
