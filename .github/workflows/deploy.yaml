@@ -12,14 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # https://github.com/actions/checkout
-      - name: Check source code
+      - name: Checkout Nop source code
         uses: actions/checkout@v4
         with:
           repository: entropy-cloud/nop-entropy
           path: code
 
       # 克隆当前仓库到 dist 目录，以便于收集发布产物并提交至 dist 分支
-      - name: Check artifact repo
+      - name: Checkout artifact repository
         uses: actions/checkout@v4
         with:
           repository: '${{ github.repository }}'
@@ -32,10 +32,26 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build packages
+      - name: Check whether new commit exists
         working-directory: code
         run: |
           NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
+          NOP_BUILD_LOG_FILE="${NOP_DIST_DIR}/USAGE.md"
+          NOP_LATEST_COMMIT="$(git log --format="%H" -n 1)"
+
+          echo "IGNORE_BUILDING=false" >> ${GITHUB_ENV}
+          # 若是没有最新的提交，则无需构建
+          if [ -n "$(grep ${NOP_LATEST_COMMIT} ${NOP_BUILD_LOG_FILE})" ]; then
+            echo "IGNORE_BUILDING=true" >> ${GITHUB_ENV}
+            echo "No new commits in Nop git repo, ignore the building"
+          fi
+
+      - name: Build packages
+        if: ${{ env.IGNORE_BUILDING == 'false' }}
+        working-directory: code
+        run: |
+          NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
+          NOP_BUILD_LOG_FILE="${NOP_DIST_DIR}/USAGE.md"
           NOP_LATEST_COMMIT="$(git log --format="%H" -n 1)"
           NOP_BUILD_AT="$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S %:z')"
 
@@ -69,16 +85,18 @@ jobs:
           NOP_CLI_JAR_PATH="$(cd ${NOP_DIST_DIR} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')"
           NOP_CLI_JAR_NAME="$(basename ${NOP_CLI_JAR_PATH})"
 
-          sed "s|%build_at%|${NOP_BUILD_AT}|g" -i ${NOP_DIST_DIR}/USAGE.md
-          sed "s|%version%|${NOP_VERSION}|g" -i ${NOP_DIST_DIR}/USAGE.md
-          sed "s|%latest_commit%|${NOP_LATEST_COMMIT}|g" -i ${NOP_DIST_DIR}/USAGE.md
-          sed "s|%cli_jar_path%|${NOP_CLI_JAR_PATH}|g" -i ${NOP_DIST_DIR}/USAGE.md
-          sed "s|%cli_jar_name%|${NOP_CLI_JAR_NAME}|g" -i ${NOP_DIST_DIR}/USAGE.md
+          sed "s|%build_at%|${NOP_BUILD_AT}|g" -i ${NOP_BUILD_LOG_FILE}
+          sed "s|%version%|${NOP_VERSION}|g" -i ${NOP_BUILD_LOG_FILE}
+          sed "s|%latest_commit%|${NOP_LATEST_COMMIT}|g" -i ${NOP_BUILD_LOG_FILE}
+          sed "s|%cli_jar_path%|${NOP_CLI_JAR_PATH}|g" -i ${NOP_BUILD_LOG_FILE}
+          sed "s|%cli_jar_name%|${NOP_CLI_JAR_NAME}|g" -i ${NOP_BUILD_LOG_FILE}
 
       - name: Build IDEA plugin
+        if: ${{ env.IGNORE_BUILDING == 'false' }}
         working-directory: code/nop-idea-plugin
         run: |
           NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
+          NOP_BUILD_LOG_FILE="${NOP_DIST_DIR}/USAGE.md"
 
           rm -f ${NOP_DIST_DIR}/nop-idea-plugin-*.zip
 
@@ -92,10 +110,11 @@ jobs:
           NOP_BUILD_END="$(date +%s)"
           NOP_BUILD_PERIOD="$(echo "scale=2; ($NOP_BUILD_END - $NOP_BUILD_AT) / 60" | bc)"
 
-          sed "s|%build_period%|${NOP_BUILD_PERIOD}|g" -i ${NOP_DIST_DIR}/USAGE.md
-          sed "s|%idea_plugin_name%|${NOP_IDEA_PLUGIN_NAME}|g" -i ${NOP_DIST_DIR}/USAGE.md
+          sed "s|%build_period%|${NOP_BUILD_PERIOD}|g" -i ${NOP_BUILD_LOG_FILE}
+          sed "s|%idea_plugin_name%|${NOP_IDEA_PLUGIN_NAME}|g" -i ${NOP_BUILD_LOG_FILE}
 
       - name: Commit artifacts
+        if: ${{ env.IGNORE_BUILDING == 'false' }}
         working-directory: dist
         # Note：推送至当前仓库，需在仓库配置中启用 Action 的写权限
         run: |
