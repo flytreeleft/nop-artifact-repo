@@ -36,26 +36,30 @@ jobs:
           cache: maven
 
       - name: Check whether new commit exists
-        working-directory: code
+        working-directory: dist
         run: |
-          NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
-          NOP_BUILD_LOG_FILE="${NOP_DIST_DIR}/USAGE.md"
-          NOP_LATEST_COMMIT="$(git log --format="%H" -n 1)"
+          NOP_BUILD_LOG_FILE="USAGE.md"
+          NOP_LATEST_COMMIT="$(cd ${GITHUB_WORKSPACE}/code && git log --format="%H" -n 1)"
 
-          ls -al ${NOP_BUILD_LOG_FILE} || echo ""
-          head -n 15 ${NOP_BUILD_LOG_FILE} || echo ""
-          grep ${NOP_LATEST_COMMIT} ${NOP_BUILD_LOG_FILE} || echo ""
+          NOP_IGNORE_BUILDING=false
+          if [ -n "$(git rev-parse --verify dist 2>/dev/null)" ]; then
+            if [ -n "$(git checkout dist >/dev/null \
+                        && grep ${NOP_LATEST_COMMIT} ${NOP_BUILD_LOG_FILE} \
+                        ; git checkout master >/dev/null)" ]; then
+              NOP_IGNORE_BUILDING=true
+            fi
+          fi
+
           # 若是没有最新的提交，则无需构建
-          if [ -n "$(grep ${NOP_LATEST_COMMIT} ${NOP_BUILD_LOG_FILE})" ]; then
+          echo "NOP_IGNORE_BUILDING=${NOP_IGNORE_BUILDING}" >> ${GITHUB_ENV}
+          if [[ "${NOP_IGNORE_BUILDING}" = "true" ]]; then
             echo "Ignore the building for commit ${NOP_LATEST_COMMIT}"
-            echo "NOP_IGNORE_BUILDING=true" >> ${GITHUB_ENV}
           else
             echo "Continue the building for commit ${NOP_LATEST_COMMIT}"
-            echo "NOP_IGNORE_BUILDING=false" >> ${GITHUB_ENV}
           fi
 
       - name: Build packages
-        if: ${{ env.NOP_IGNORE_BUILDING == 'false' }}
+        if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
         working-directory: code
         run: |
           NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
@@ -102,7 +106,7 @@ jobs:
           sed "s|%cli_jar_name%|${NOP_CLI_JAR_NAME}|g" -i ${NOP_BUILD_LOG_FILE}
 
       - name: Build IDEA plugin
-        if: ${{ env.NOP_IGNORE_BUILDING == 'false' }}
+        if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
         working-directory: code/nop-idea-plugin
         run: |
           NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
@@ -124,7 +128,7 @@ jobs:
           sed "s|%idea_plugin_name%|${NOP_IDEA_PLUGIN_NAME}|g" -i ${NOP_BUILD_LOG_FILE}
 
       - name: Commit artifacts
-        if: ${{ env.NOP_IGNORE_BUILDING == 'false' }}
+        if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
         working-directory: dist
         # Note：推送至当前仓库，需在仓库配置中启用 Action 的写权限
         run: |
