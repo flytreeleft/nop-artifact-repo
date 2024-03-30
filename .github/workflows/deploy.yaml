@@ -36,18 +36,13 @@ jobs:
           cache: maven
 
       - name: Check whether new commit exists
-        working-directory: dist
         run: |
-          NOP_BUILD_LOG_FILE="USAGE.md"
+          NOP_BUILD_LOG_URL="https://raw.githubusercontent.com/${{ github.repository }}/dist/USAGE.md"
           NOP_LATEST_COMMIT="$(cd ${GITHUB_WORKSPACE}/code && git log --format="%H" -n 1)"
 
           NOP_IGNORE_BUILDING=false
-          if [ -n "$(git rev-parse --verify dist 2>/dev/null)" ]; then
-            if [ -n "$(git checkout dist >/dev/null \
-                        && grep ${NOP_LATEST_COMMIT} ${NOP_BUILD_LOG_FILE} \
-                        ; git checkout master >/dev/null)" ]; then
-              NOP_IGNORE_BUILDING=true
-            fi
+          if [ -n "$(curl ${NOP_BUILD_LOG_URL} | grep ${NOP_LATEST_COMMIT})" ]; then
+            NOP_IGNORE_BUILDING=true
           fi
 
           # 若是没有最新的提交，则无需构建
