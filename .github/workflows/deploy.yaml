@@ -22,7 +22,7 @@ jobs:
           path: code
 
       # 克隆当前仓库到 dist 目录，以便于收集发布产物并提交至 dist 分支
-      - name: Checkout artifact repository
+      - name: Checkout Nop artifacts building repository
         uses: actions/checkout@v4
         with:
           repository: '${{ github.repository }}'
@@ -35,8 +35,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Check whether new commit exists
+      - name: Check whether Nop has new commits
         run: |
+          # 检查 dist 分支中记录 Nop 变更号的文件
           NOP_BUILD_LOG_URL="https://raw.githubusercontent.com/${{ github.repository }}/dist/USAGE.md"
           NOP_LATEST_COMMIT="$(cd ${GITHUB_WORKSPACE}/code && git log --format="%H" -n 1)"
 
@@ -53,7 +54,7 @@ jobs:
             echo "Continue the building for commit ${NOP_LATEST_COMMIT}"
           fi
 
-      - name: Build packages
+      - name: Build Nop packages
         if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
         working-directory: code
         run: |
@@ -100,7 +101,7 @@ jobs:
           sed "s|%cli_jar_path%|${NOP_CLI_JAR_PATH}|g" -i ${NOP_BUILD_LOG_FILE}
           sed "s|%cli_jar_name%|${NOP_CLI_JAR_NAME}|g" -i ${NOP_BUILD_LOG_FILE}
 
-      - name: Build IDEA plugin
+      - name: Build Nop IDEA plugin
         if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
         working-directory: code/nop-idea-plugin
         run: |
@@ -122,7 +123,7 @@ jobs:
           sed "s|%build_period%|${NOP_BUILD_PERIOD}|g" -i ${NOP_BUILD_LOG_FILE}
           sed "s|%idea_plugin_name%|${NOP_IDEA_PLUGIN_NAME}|g" -i ${NOP_BUILD_LOG_FILE}
 
-      - name: Commit artifacts
+      - name: Commit Nop artifacts
         if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
         working-directory: dist
         # Note：推送至当前仓库，需在仓库配置中启用 Action 的写权限
