@@ -97,49 +97,88 @@ ${JAVA_HOME}/bin/java \
 
 ## Maven 仓库配置
 
-在 Maven 的配置文件 `conf/settings.xml` 中添加 Nop 仓库地址：
+对于第三方仓库，可以采用全局配置和项目配置两种方式，
+前者将是对所有项目均有效，后者则仅对已配置的项目有效。
+
+全局配置，是直接在 Maven 的配置文件 `conf/settings.xml`
+中添加 Nop 仓库地址：
 
 ```xml
-    <repositories>
-      <repository>
-        <id>nop-repo</id>
-        <url>https://nop.repo.crazydan.io/</url>
-        <releases>
-          <enabled>true</enabled>
-          <updatePolicy>always</updatePolicy>
-          <checksumPolicy>fail</checksumPolicy>
-        </releases>
-        <snapshots>
-          <enabled>true</enabled>
-          <updatePolicy>always</updatePolicy>
-          <checksumPolicy>fail</checksumPolicy>
-        </snapshots>
-      </repository>
+<settings>
+  <!-- ... -->
 
+  <profiles>
+    <profile>
       <!-- ... -->
-    </repositories>
-    <pluginRepositories>
-      <!--
-      Note: Nop Codegen 会被作为 Maven 插件使用，
-            故而，需要在插件仓库中也配置上
-      -->
-      <pluginRepository>
-        <id>nop-repo</id>
-        <url>https://nop.repo.crazydan.io/</url>
-        <releases>
-          <enabled>true</enabled>
-          <updatePolicy>always</updatePolicy>
-          <checksumPolicy>fail</checksumPolicy>
-        </releases>
-        <snapshots>
-          <enabled>true</enabled>
-          <updatePolicy>always</updatePolicy>
-          <checksumPolicy>fail</checksumPolicy>
-        </snapshots>
-      </pluginRepository>
 
-      <!-- ... -->
-    </pluginRepositories>
+      <repositories>
+        <repository>
+          <id>nop-repo</id>
+          <url>https://nop.repo.crazydan.io/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+          </snapshots>
+        </repository>
+
+        <!-- ... -->
+      </repositories>
+      <pluginRepositories>
+        <!--
+        Note: Nop Codegen 会被作为 Maven 插件使用，
+              故而，需要在插件仓库中也配置上
+        -->
+        <pluginRepository>
+          <id>nop-repo</id>
+          <url>https://nop.repo.crazydan.io/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+          </snapshots>
+        </pluginRepository>
+
+        <!-- ... -->
+      </pluginRepositories>
+    </profile>
+  </profiles>
+
+  <!-- ... -->
+</settings>
+```
+
+而项目配置，则是在项目工程的父 `pom.xml` 中添加仓库地址：
+
+```xml
+<project>
+  <!-- ... -->
+
+  <repositories>
+    <repository>
+      <id>nop-repo</id>
+      <url>https://nop.repo.crazydan.io/</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>nop-repo</id>
+      <url>https://nop.repo.crazydan.io/</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <!-- ... -->
+</project>
 ```
 
 ## Nop 组件依赖引入
