@@ -18,10 +18,13 @@
 tests
 *-demo
 *-demo2
-*-codegen
 nop-all-for-spring
 nop-spring-demo-no-orm
 ```
+
+> 工程模块的 `pom.xml` 配置了
+> `<properties><maven.deploy.skip>true</maven.deploy.skip></properties>`
+> 的构建包也不会发布。
 
 本仓库通过 Github Action 自动构建最新的
 [Nop 源码](https://github.com/entropy-cloud/nop-entropy/)，并托管于
