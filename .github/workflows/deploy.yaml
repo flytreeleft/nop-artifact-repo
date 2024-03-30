@@ -1,8 +1,8 @@
 name: Deploy Nop Artifacts
 
 on:
-  push:
-    branches: ['master']
+  # push:
+  #   branches: ['master']
   schedule:
     # Note：此为 UTC 时间，最终的执行时间需加上时区
     - cron: '0 18 * * *'
