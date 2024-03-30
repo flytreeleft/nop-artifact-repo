@@ -3,6 +3,9 @@ name: Deploy Nop Artifacts
 on:
   # push:
   #   branches: ['master']
+  # 启用手工触发
+  # https://dev.to/this-is-learning/manually-trigger-a-github-action-with-workflowdispatch-3mga
+  workflow_dispatch:
   schedule:
     # Note：此为 UTC 时间，最终的执行时间需加上时区
     - cron: '0 18 * * *'
