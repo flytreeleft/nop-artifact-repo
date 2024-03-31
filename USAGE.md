@@ -22,9 +22,9 @@ nop-all-for-spring
 nop-spring-demo-no-orm
 ```
 
-> 工程模块的 `pom.xml` 配置了
+> 在 `pom.xml` 中配置了
 > `<properties><maven.deploy.skip>true</maven.deploy.skip></properties>`
-> 的构建包也不会发布。
+> 的工程模块的构建包也不会发布。
 
 本仓库通过 Github Action 自动构建最新的
 [Nop 源码](https://github.com/entropy-cloud/nop-entropy/)，并托管于
@@ -53,7 +53,10 @@ nop-spring-demo-no-orm
 本团队及其成员将不承担因您的任何行为所造成的任何后果。
 若您继续使用本仓库，则默认视为您已明确知晓相关风险，并承诺后果自负。
 
-建议您在商业产品中慎重使用本仓库，优先选择自行构建
+本团队承诺，不会主动在构建和发布的任何环节做任何危及信息安全的行为，
+并且保证所构建的源码完全来自于官方仓库，不会对源码做任何修改。
+
+但仍建议您在商业产品中慎重使用本仓库，优先选择自行构建
 [Nop 源码](https://gitee.com/canonical-entropy/nop-entropy)，或等待官方仓库的发布。
 
 若您有关于 Nop 开发相关的问题，请移步至
@@ -100,8 +103,10 @@ ${JAVA_HOME}/bin/java \
 
 ## Maven 仓库配置
 
-对于第三方仓库，可以采用全局配置和项目配置两种方式，
-前者将是对所有项目均有效，后者则仅对已配置的项目有效。
+对于第三方仓库，Maven 可以采用全局配置和项目配置两种引入方式：
+
+- 前者将对环境内的所有项目有效，但需要项目开发和构建环境均做修改，改动范围较大
+- 后者则仅对已配置的项目有效，但无需修改项目的开发和构建环境，更易上手
 
 全局配置，是直接在 Maven 的配置文件 `conf/settings.xml`
 中添加 Nop 仓库地址：
@@ -161,7 +166,7 @@ ${JAVA_HOME}/bin/java \
 </settings>
 ```
 
-而项目配置，则是在项目工程的父 `pom.xml` 中添加仓库地址：
+而项目配置，则是在 Maven 工程模块的 `pom.xml` 中添加仓库地址（一般可在父模块中添加）：
 
 ```xml
 <project>
