@@ -70,10 +70,11 @@ jobs:
 
           # 收集不需要部署发布包的模块：以 mvn --projects '!webapp' 形式排除指定模块
           # https://blog.jdriven.com/2022/11/mastering-maven-exclude-modules-from-build/
+          # Note: *-codegen 项目不参与部署，但会参与构建
           IGNORE_MODULES="$(
             grep -rl --include=pom.xml \
               '<maven.deploy.skip>true</maven.deploy.skip>' . \
-            | sed 's|^\./||g; s|/pom.xml$||g; s|^|!|g' \
+            | sed 's|^\./||g; s|/pom.xml$||g; /-codegen$/d; s|^|!|g' \
             | tr '\n' ',' \
             && find . -type d \( -name '*-demo' -o -name '*-demo2' \) \
             | sed '/\/src\//d; /\/target\//d; s|^\./||g; s|^|!|g' \
