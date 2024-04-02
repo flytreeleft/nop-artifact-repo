@@ -2,9 +2,3 @@
 **/_remote.repositories
 **/*.lastUpdated
 **/maven-metadata-local.xml
-
-**/nop-all-for-spring/
-**/nop-spring-demo-no-orm/
-**/*-demo/
-**/*-demo2/
-**/tests/

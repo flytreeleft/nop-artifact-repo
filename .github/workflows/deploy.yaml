@@ -105,6 +105,10 @@ jobs:
           IGNORE_MODULES="$(echo ${IGNORE_MODULES} | sed 's/ /::::/g')"
           sed "s|%ignored_modules%|${IGNORE_MODULES}|g" -i ${NOP_BUILD_LOG_FILE}
           sed 's/::::/\n/g' -i ${NOP_BUILD_LOG_FILE}
+          echo "${IGNORE_MODULES}" \
+          | sed 's/ /\n/g' \
+          | sed 's|^|**/|g; s|$|/|g' \
+          >> ${NOP_DIST_DIR}/.gitignore
 
           sed "s|%build_at%|${NOP_BUILD_AT}|g" -i ${NOP_BUILD_LOG_FILE}
           sed "s|%version%|${NOP_VERSION}|g" -i ${NOP_BUILD_LOG_FILE}
