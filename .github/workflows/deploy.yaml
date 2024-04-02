@@ -71,14 +71,14 @@ jobs:
           # 收集不需要部署发布包的模块：以 mvn --projects '!webapp' 形式排除指定模块
           # https://blog.jdriven.com/2022/11/mastering-maven-exclude-modules-from-build/
           # Note: *-codegen 项目不参与部署，但会参与构建
-          IGNORE_MODULES="$(
-            grep -rl --include=pom.xml \
-              '<maven.deploy.skip>true</maven.deploy.skip>' . \
-            | sed 's|^\./||g; s|/pom.xml$||g; /-codegen$/d; s|^|!|g' \
-            | tr '\n' ',' \
-            && find . -type d \( -name '*-demo' -o -name '*-demo2' \) \
-            | sed '/\/src\//d; /\/target\//d; s|^\./||g; s|^|!|g' \
-            | tr '\n' ','
+          IGNORE_MODULES="$( \
+            ( grep -rl --include=pom.xml \
+                '<maven.deploy.skip>true</maven.deploy.skip>' . \
+              | sed 's|^\./||g; s|/pom.xml$||g;' \
+              ; find . -type d \( -name '*-demo' -o -name '*-demo2' \) \
+              | sed '/\/src\//d; /\/target\//d; s|^\./||g;' \
+              ; echo -e "nop-all-for-spring\nnop-demo/nop-spring-demo-no-orm"
+            ) | sort | uniq \
           )"
 
           # 部署构建产物到本地指定目录
@@ -88,13 +88,23 @@ jobs:
             -DaltDeploymentRepository=internal::default::file://${NOP_DIST_DIR} \
             -DskipTests \
             -Dquarkus.package.type=uber-jar \
-            --projects="${IGNORE_MODULES}!tests,!nop-all-for-spring,!nop-demo/nop-spring-demo-no-orm" \
+            --projects="$( \
+              echo "${IGNORE_MODULES}" \
+              | sed 's/ /\n/g' \
+              | sed '/-codegen$/d; s|^|!|g' \
+              | tr '\n' ',' \
+            )" \
             --file pom.xml \
             clean deploy
 
           NOP_VERSION="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
           NOP_CLI_JAR_PATH="$(cd ${NOP_DIST_DIR} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')"
           NOP_CLI_JAR_NAME="$(basename ${NOP_CLI_JAR_PATH})"
+
+          # 动态注入未部署的模块
+          IGNORE_MODULES="$(echo ${IGNORE_MODULES} | sed 's/ /::::/g')"
+          sed "s|%ignored_modules%|${IGNORE_MODULES}|g" -i ${NOP_BUILD_LOG_FILE}
+          sed 's/::::/\n/g' -i ${NOP_BUILD_LOG_FILE}
 
           sed "s|%build_at%|${NOP_BUILD_AT}|g" -i ${NOP_BUILD_LOG_FILE}
           sed "s|%version%|${NOP_VERSION}|g" -i ${NOP_BUILD_LOG_FILE}

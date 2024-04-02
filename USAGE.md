@@ -12,19 +12,11 @@
 > - 该仓库仅提供最后一次构建的产物，不保留既往构建产物，不能通过时间戳引入以前的构建版本
 > - 若在构建计划周期内，Nop 源码没有发生更新，则不会再重复构建源码并发布组件包
 
-注意，以下 Nop 工程模块的构建包未发布至本仓库（这些都是演示用的，不作为外部依赖引入）：
+注意，以下 Nop 工程模块的构建包未发布至本仓库（这些模块均不会被作为依赖引入到其他项目中）：
 
 ```ini
-tests
-*-demo
-*-demo2
-nop-all-for-spring
-nop-spring-demo-no-orm
+%ignored_modules%
 ```
-
-> 在 `pom.xml` 中配置了
-> `<properties><maven.deploy.skip>true</maven.deploy.skip></properties>`
-> 的工程模块的构建包也不会发布。
 
 本仓库通过 Github Action 自动构建最新的
 [Nop 源码](https://github.com/entropy-cloud/nop-entropy/)，并托管于
