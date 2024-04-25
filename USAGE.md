@@ -66,7 +66,12 @@
 
 安装后需要清空 IDEA 缓存并重启：`File -> Invalidate Caches...`。
 
-在启动调试时，需要选择 `XLangDebug` （注意，其仅对 `#main` 函数有效）：
+在启动 XLang 调试之前，需要为带静态 `#main` 函数的启动类 `XxxApplication`
+新建一个 `XLang Runner` 类型的 `Run/Debug` 配置：
+
+![](./assets/image/idea-xlang-debug-create-xlang-runner.png)
+
+然后，选择 `XLangDebug` 以调试模式启动 `XxxApplication`：
 
 ![](./assets/image/idea-xlang-debug.png)
 
