@@ -37,7 +37,7 @@
 ## 免责声明
 
 本仓库由 [Crazydan Studio](https://studio.crazydan.org/) 团队构建并维护，
-除了方便本团队的日常开发之外，也向 [Nop 开源社区](https://gitee.com/nop-platform)免费开放，
+除了方便本团队的日常开发之外，也向 [Nop 开源社区](https://nop-platform.github.io)免费开放，
 社区内任何有需要的朋友均可自由使用，没有任何限制和前提条件。
 
 该仓库并非 Nop 官方仓库，也不是 Nop 开源社区运营的仓库，
