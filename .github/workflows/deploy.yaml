@@ -78,7 +78,7 @@ jobs:
               ; find . -type d \( -name '*-demo' -o -name '*-demo2' \) \
               | sed '/\/src\//d; /\/target\//d; s|^\./||g;' \
               ; echo -e "nop-all-for-spring\nnop-demo/nop-spring-demo-no-orm"
-            ) | sort | uniq \
+            ) | sed '/nop-report\/nop-report-demo/d' | sort | uniq \
           )"
 
           # 部署构建产物到本地指定目录
