@@ -31,8 +31,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: '${{ github.repository }}'
-          ref: dist
           path: dist
+      # 用于临时存放构建产物
+      - name: Checkout Nop artifacts repository
+        uses: actions/checkout@v4
+        with:
+          repository: '${{ github.repository }}'
+          ref: dist
+          path: dist-temp
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -47,17 +53,16 @@ jobs:
           # 记录构建信息
           ####################################################
           NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
+          NOP_DIST_TEMP_DIR="${GITHUB_WORKSPACE}/dist-temp"
           NOP_BUILD_LOG_FILE="${NOP_DIST_DIR}/USAGE.md"
 
           NOP_BUILD_AT="$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S %:z')"
           NOP_BUILD_TIMESTAMP="$(date +%s)"
 
-          echo "NOP_DIST_DIR=${NOP_DIST_DIR}" >> ${GITHUB_ENV}
+          echo "NOP_DIST_TEMP_DIR=${NOP_DIST_TEMP_DIR}" >> ${GITHUB_ENV}
           echo "NOP_BUILD_LOG_FILE=${NOP_BUILD_LOG_FILE}" >> ${GITHUB_ENV}
           echo "NOP_BUILD_AT=${NOP_BUILD_AT}" >> ${GITHUB_ENV}
           echo "NOP_BUILD_TIMESTAMP=${NOP_BUILD_TIMESTAMP}" >> ${GITHUB_ENV}
-
-          curl https://raw.githubusercontent.com/${{github.repository}}/master/USAGE.md -o ${NOP_BUILD_LOG_FILE}
 
           ####################################################
           # 记录版本信息
@@ -81,7 +86,7 @@ jobs:
           NOP_BUILD_LOG_CONTENT="$(curl ${NOP_BUILD_LOG_URL})"
 
           NOP_IGNORE_BUILDING=false
-          NOP_EXTENSIONS_IGNORE_BUILDING=false
+          NOP_EXTENSIONS_IGNORE_BUILDING=true
 
           if [ -n "$(echo "${NOP_BUILD_LOG_CONTENT}" | grep ${NOP_LATEST_COMMIT})" ]; then
             NOP_IGNORE_BUILDING=true
@@ -145,13 +150,13 @@ jobs:
         if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
         working-directory: code
         run: |
-          rm -rf ${{env.NOP_DIST_DIR}}/io/github/entropy-cloud || echo "Ignore"
+          rm -rf ${{env.NOP_DIST_TEMP_DIR}}/io/github/entropy-cloud || echo "Ignore"
 
           # 部署构建产物到本地指定目录
           # https://dzone.com/articles/using-github-as-maven-repository
           # https://stackoverflow.com/questions/12435283/adding-a-maven-distribution-repository-on-the-command-line#answer-39439854
           mvn -B \
-            -DaltDeploymentRepository=internal::default::file://${{env.NOP_DIST_DIR}} \
+            -DaltDeploymentRepository=internal::default::file://${{env.NOP_DIST_TEMP_DIR}} \
             -DskipTests \
             -Dquarkus.package.type=uber-jar \
             --projects="$( \
@@ -167,19 +172,19 @@ jobs:
         if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
         working-directory: code/nop-idea-plugin
         run: |
-          rm -f ${{env.NOP_DIST_DIR}}/nop-idea-plugin-*.zip
+          rm -f ${{env.NOP_DIST_TEMP_DIR}}/nop-idea-plugin-*.zip
 
           bash ./gradlew buildPlugin
 
           NOP_IDEA_PLUGIN_NAME="$(basename `ls build/distributions/nop-idea-plugin-*.zip`)"
 
-          cp build/distributions/${NOP_IDEA_PLUGIN_NAME} ${{env.NOP_DIST_DIR}}/
+          cp build/distributions/${NOP_IDEA_PLUGIN_NAME} ${{env.NOP_DIST_TEMP_DIR}}/
 
       - name: Build Nop extensions
         if: ${{ env.NOP_EXTENSIONS_IGNORE_BUILDING != 'true' }}
         working-directory: nop-extensions
         run: |
-          rm -rf ${{env.NOP_DIST_DIR}}/io/github/entropy-cloud/extensions || echo "Ignore"
+          rm -rf ${{env.NOP_DIST_TEMP_DIR}}/io/github/entropy-cloud/extensions || echo "Ignore"
 
           IGNORED_MODULES="$( \
             ( grep -rl --include=pom.xml \
@@ -191,7 +196,7 @@ jobs:
           )"
 
           mvn -B \
-            -DaltDeploymentRepository=internal::default::file://${{env.NOP_DIST_DIR}} \
+            -DaltDeploymentRepository=internal::default::file://${{env.NOP_DIST_TEMP_DIR}} \
             -DskipTests \
             --projects="$( \
               echo ${IGNORED_MODULES} \
@@ -218,10 +223,10 @@ jobs:
           sed "s|%nop_extensions_version%|${{env.NOP_EXTENSIONS_VERSION}}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
           sed "s|%nop_extensions_latest_commit%|${{env.NOP_EXTENSIONS_LATEST_COMMIT}}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
 
-          NOP_IDEA_PLUGIN_NAME="$(basename `ls "${{env.NOP_DIST_DIR}}"/nop-idea-plugin-*.zip`)"
+          NOP_IDEA_PLUGIN_NAME="$(basename `ls "${{env.NOP_DIST_TEMP_DIR}}"/nop-idea-plugin-*.zip`)"
           sed "s|%idea_plugin_name%|${NOP_IDEA_PLUGIN_NAME}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
 
-          NOP_CLI_JAR_PATH="$(cd ${{env.NOP_DIST_DIR}} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')"
+          NOP_CLI_JAR_PATH="$(cd ${{env.NOP_DIST_TEMP_DIR}} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')"
           NOP_CLI_JAR_NAME="$(basename ${NOP_CLI_JAR_PATH})"
           sed "s|%cli_jar_path%|${NOP_CLI_JAR_PATH}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
           sed "s|%cli_jar_name%|${NOP_CLI_JAR_NAME}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
@@ -233,7 +238,7 @@ jobs:
 
           echo ${{env.NOP_IGNORED_MODULES}} \
           | sed 's/ /\n/g' \
-          | sed 's|^|**/|g; s|$|/|g' \
+          | sed 's|^|io/github/entropy-cloud/|g; s|$|/|g' \
           >> ${{env.NOP_DIST_DIR}}/.gitignore
 
       - name: Commit Nop artifacts
@@ -243,6 +248,8 @@ jobs:
         run: |
           git config user.name "$(git log --format='%an' HEAD^!)"
           git config user.email "$(git log --format='%ae' HEAD^!)"
+
+          mv "${{env.NOP_DIST_TEMP_DIR}}"/{io,nop-*} .
 
           git branch -D dist || echo "Ignore"
           git checkout -B dist
