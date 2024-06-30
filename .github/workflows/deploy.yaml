@@ -20,6 +20,11 @@ jobs:
         with:
           repository: entropy-cloud/nop-entropy
           path: code
+      - name: Checkout Nop Extensions source code
+        uses: actions/checkout@v4
+        with:
+          repository: entropy-cloud/nop-extensions
+          path: nop-extensions
 
       # 克隆当前仓库到 dist 目录，以便于收集发布产物并提交至 dist 分支
       - name: Checkout Nop artifacts building repository
@@ -137,6 +142,19 @@ jobs:
 
           sed "s|%build_period%|${NOP_BUILD_PERIOD}|g" -i ${NOP_BUILD_LOG_FILE}
           sed "s|%idea_plugin_name%|${NOP_IDEA_PLUGIN_NAME}|g" -i ${NOP_BUILD_LOG_FILE}
+
+      - name: Build Nop Extensions
+        working-directory: nop-extensions
+        run: |
+          NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
+
+          rm -rf ${NOP_DIST_DIR}/io/github/entropy-cloud/extensions || echo "Ignore"
+
+          mvn -B \
+            -DaltDeploymentRepository=internal::default::file://${NOP_DIST_DIR} \
+            -DskipTests \
+            --file pom.xml \
+            clean deploy
 
       - name: Commit Nop artifacts
         if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
