@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.entropy-cloud</groupId>
+    <artifactId>nop-entropy</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+
+    <packaging>pom</packaging>
+
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+        </license>
+    </licenses>
+
+
+    <properties>
+        <revision>2.0.0-SNAPSHOT</revision>
+
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.release>11</maven.compiler.release>
+
+        <main.basedir>${basedir}</main.basedir>
+        <docs.main>${project.artifactId}</docs.main>
+
+        <!-- Sonar -->
+<!--        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>-->
+<!--        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>-->
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${maven.multiModuleProjectDirectory}/tests/target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.language>java</sonar.language>
+
+        <sonar.exclusions>
+            **/_gen/**, **/*Errors.java,**/*Configs.java,**/*Constants.java
+        </sonar.exclusions>
+
+        <!-- Plugins -->
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-failsafe-plugin.version>3.0.0-M4</maven-failsafe-plugin.version>
+        <maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+        <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
+        <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
+        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+        <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+        <git-commit-id-plugin.version>3.0.0</git-commit-id-plugin.version>
+        <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
+        <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+        <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+        <asciidoctor-maven-plugin.version>1.5.8</asciidoctor-maven-plugin.version>
+        <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
+        <artifactory-maven-plugin.version>2.2.1</artifactory-maven-plugin.version>
+        <license-maven-plugin.version>1.16</license-maven-plugin.version>
+        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
+        <disable.checks>false</disable.checks>
+        <maven-checkstyle-plugin.failsOnError>true</maven-checkstyle-plugin.failsOnError>
+        <maven-checkstyle-plugin.failOnViolation>true</maven-checkstyle-plugin.failOnViolation>
+        <maven-checkstyle-plugin.includeTestSourceDirectory>true</maven-checkstyle-plugin.includeTestSourceDirectory>
+        <spring-cloud-build-checkstyle.branch>master</spring-cloud-build-checkstyle.branch>
+
+        <antelopetasks.version>3.2.10</antelopetasks.version>
+        <ant-nodeps.version>1.8.1</ant-nodeps.version>
+
+        <nop-entropy.version>2.0.0-SNAPSHOT</nop-entropy.version>
+
+        <quarkus.platform.version>3.8.2</quarkus.platform.version>
+
+        <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencyManagement>
+
+        <dependencies>
+            <dependency>
+                <groupId>io.github.entropy-cloud</groupId>
+                <artifactId>nop-bom</artifactId>
+                <version>${nop-entropy.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven-source-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- mvn site指令生成报告 -->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-site-plugin</artifactId>-->
+            <!--                <version>4.0.0-M2</version>-->
+            <!--            </plugin>-->
+
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-project-info-reports-plugin</artifactId>-->
+            <!--                <version>3.3.0</version>-->
+            <!--            </plugin>-->
+
+
+
+            <!-- mvn surefire-report:report指令生成测试报告 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.2</version>
+
+                <configuration>
+                    <argLine>
+                        ${jacocoArgLine}
+                    </argLine>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <forkCount>4</forkCount>
+                    <reuseForks>true</reuseForks>
+                </configuration>
+
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M2</version>
+                <executions>
+                    <execution>
+                        <id>enforce-no-duplicate-dependencies</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <!-- 检查pom中没有添加重复的依赖项 -->
+                                <banDuplicatePomDependencyVersions/>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+
+                <plugin>
+                    <groupId>org.jboss.jandex</groupId>
+                    <artifactId>jandex-maven-plugin</artifactId>
+                    <version>1.2.3</version>
+                    <executions>
+                        <execution>
+                            <id>make-index</id>
+                            <goals>
+                                <goal>jandex</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>precompile</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>java</goal>
+                            </goals>
+                            <configuration>
+                                <arguments>
+                                    <argument>${project.basedir}</argument>
+                                    <argument>precompile</argument>
+                                </arguments>
+
+                                <!--
+                                避免包含META-INF目录导致加载尚未编译的ICoreInitializer
+                                -->
+                                <addResourcesToClasspath>false</addResourcesToClasspath>
+                                <addOutputToClasspath>false</addOutputToClasspath>
+                            </configuration>
+                        </execution>
+
+                        <execution>
+                            <id>precompile2</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>java</goal>
+                            </goals>
+                            <configuration>
+                                <arguments>
+                                    <argument>${project.basedir}</argument>
+                                    <argument>precompile2</argument>
+                                </arguments>
+
+                                <addResourcesToClasspath>true</addResourcesToClasspath>
+                                <addOutputToClasspath>true</addOutputToClasspath>
+                            </configuration>
+                        </execution>
+
+                        <execution>
+                            <id>aop</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>java</goal>
+                            </goals>
+                            <configuration>
+                                <arguments>
+                                    <argument>${project.basedir}</argument>
+                                    <argument>aop</argument>
+                                </arguments>
+                            </configuration>
+                        </execution>
+
+                        <execution>
+                            <id>postcompile</id>
+                            <phase>generate-test-resources</phase>
+                            <goals>
+                                <goal>java</goal>
+                            </goals>
+                            <configuration>
+                                <addResourcesToClasspath>true</addResourcesToClasspath>
+                                <addOutputToClasspath>true</addOutputToClasspath>
+                                <arguments>
+                                    <argument>${project.basedir}</argument>
+                                    <argument>postcompile</argument>
+                                </arguments>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <classpathScope>compile</classpathScope>
+                        <includePluginDependencies>true</includePluginDependencies>
+                        <includeProjectDependencies>true</includeProjectDependencies>
+                        <addResourcesToClasspath>true</addResourcesToClasspath>
+                        <mainClass>io.nop.codegen.task.CodeGenTask</mainClass>
+                        <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                    </configuration>
+
+                    <dependencies>
+                        <dependency>
+                            <groupId>io.github.entropy-cloud</groupId>
+                            <artifactId>nop-codegen</artifactId>
+                            <version>${nop-entropy.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.10.0.2594</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.11</version>
+                </plugin>
+
+            </plugins>
+
+        </pluginManagement>
+
+    </build>
+
+    <profiles>
+        <profile>
+            <id>coverage</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <!-- 与surefire共用时需要重命名argLine -->
+                                <configuration>
+                                    <propertyName>jacocoArgLine</propertyName>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/_gen/*.*</exclude>
+                                <exclude>**/*Errors.*</exclude>
+                                <exclude>**/*Configs.*</exclude>
+                                <exclude>**/*Constants*</exclude>
+                                <exclude>**/parse/antlr/*.*</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <modules>
+        <module>nop-dependencies</module>
+        <module>nop-bom</module>
+        <module>build-tools</module>
+        <module>nop-api-core</module>
+        <module>nop-commons</module>
+        <module>nop-core</module>
+        <module>nop-javac</module>
+        <module>nop-antlr4</module>
+        <module>nop-xdefs</module>
+        <module>nop-xlang</module>
+        <module>nop-log</module>
+        <module>nop-graphql</module>
+        <module>nop-socket</module>
+        <module>nop-web</module>
+        <module>nop-tcc</module>
+        <module>nop-cluster</module>
+        <module>nop-wf</module>
+        <module>nop-auth</module>
+        <module>nop-config</module>
+        <module>nop-js</module>
+        <module>nop-pdf</module>
+        <module>nop-benchmark</module>
+        <module>nop-cli-core</module>
+        <module>nop-cli</module>
+        <module>nop-message</module>
+        <module>nop-spring</module>
+        <module>nop-http</module>
+        <module>nop-codegen</module>
+        <module>nop-dao</module>
+        <module>nop-orm</module>
+        <module>nop-biz</module>
+        <module>nop-api-debugger</module>
+        <module>nop-rpc</module>
+        <module>nop-rule</module>
+        <module>nop-job</module>
+        <module>nop-batch</module>
+        <module>nop-nosql</module>
+        <module>nop-shell</module>
+        <module>nop-fsm</module>
+        <module>nop-dbtool</module>
+        <module>nop-svg</module>
+        <module>nop-task</module>
+        <module>nop-excel</module>
+        <module>nop-ooxml</module>
+        <module>nop-boot</module>
+        <module>nop-ui</module>
+        <module>nop-autotest</module>
+        <module>nop-ioc</module>
+        <module>nop-demo</module>
+        <module>nop-quarkus</module>
+        <module>nop-sys</module>
+        <module>nop-match</module>
+        <module>nop-web-site</module>
+        <module>nop-web-amis-editor</module>
+        <module>nop-report</module>
+        <module>nop-integration</module>
+        <module>nop-record</module>
+        <module>nop-orm-graphql</module>
+        <module>nop-codec</module>
+        <module>nop-tool</module>
+        <module>nop-stream</module>
+        <module>nop-dataset</module>
+        <module>nop-orm-model</module>
+        <module>nop-orm-eql</module>
+        <module>nop-orm-pdm</module>
+        <module>nop-xlang-debugger</module>
+        <module>nop-orm-geo</module>
+        <module>nop-gateway</module>
+        <module>nop-vertx</module>
+        <module>nop-router</module>
+        <module>nop-biz-batch</module>
+        <module>nop-web-page</module>
+        <module>nop-file</module>
+        <module>nop-netty</module>
+        <module>nop-datav</module>
+        <module>nop-dev</module>
+        <module>nop-all-for-spring</module>
+        <module>nop-git</module>
+        <module>tests</module>
+        <module>nop-oauth</module>
+        <module>nop-dyn</module>
+        <module>nop-gpt</module>
+        <module>nop-tablesaw</module>
+        <module>nop-cdc</module>
+        <module>nop-maven</module>
+        <module>nop-css</module>
+        <module>nop-search</module>
+        <module>nop-markdown</module>
+        <module>nop-orm-data</module>
+        <module>nop-rpa</module>
+        <module>nop-orm-drivers</module>
+    </modules>
+</project>

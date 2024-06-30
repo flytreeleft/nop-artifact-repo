@@ -5,11 +5,11 @@
 本仓库当前的构建信息如下：
 
 - 每日构建计划：凌晨 2 点（东八区）
-- 当前构建开始时间：`%build_at%`，构建总耗时 `%build_period%` 分钟
-- 当前 Nop 组件包版本号：`%nop_version%`
-- 当前 Nop 源码变更版本：[%nop_latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%nop_latest_commit%)
+- 当前构建开始时间：`2024-07-01 02:17:00 +08:00`，构建总耗时 `4.68` 分钟
+- 当前 Nop 组件包版本号：`2.0.0-SNAPSHOT`
+- 当前 Nop 源码变更版本：[f4e727ff191f2e1639448c90be022b54603739a0](https://gitee.com/canonical-entropy/nop-entropy/tree/f4e727ff191f2e1639448c90be022b54603739a0)
 - 额外构建的 Nop 项目如下：
-  - [canonical-entropy/nop-extensions:%nop_extensions_version%](https://gitee.com/canonical-entropy/nop-extensions/tree/%nop_extensions_latest_commit%)
+  - [canonical-entropy/nop-extensions:1.0.0-SNAPSHOT](https://gitee.com/canonical-entropy/nop-extensions/tree/5eb156f8e98d41c97b252c22c4e3de372cc84e31)
 
 > - 该仓库仅提供最后一次构建的产物，不保留既往构建产物，不能通过时间戳引入以前的构建版本
 > - 若在构建计划周期内，Nop 源码没有发生更新，则不会再重复构建源码并发布组件包
@@ -17,7 +17,48 @@
 注意，以下 Nop 工程模块的构建包未发布至本仓库（这些模块均不会被作为依赖引入到其他项目中）：
 
 ```ignore
-%nop_ignored_modules%
+build-tools
+nop-all-for-spring
+nop-auth/nop-auth-app
+nop-auth/nop-auth-codegen
+nop-batch/nop-batch-app
+nop-batch/nop-batch-codegen
+nop-benchmark
+nop-demo
+nop-demo/nop-delta-demo
+nop-demo/nop-jdk17-demo
+nop-demo/nop-orm-demo
+nop-demo/nop-quarkus-demo
+nop-demo/nop-rpc-client-demo
+nop-demo/nop-rpc-server-demo
+nop-demo/nop-spring-demo
+nop-demo/nop-spring-demo-no-orm
+nop-demo/nop-spring-demo2
+nop-demo/nop-spring-report-demo
+nop-demo/nop-spring-security-demo
+nop-demo/nop-spring-simple-demo
+nop-dev/nop-dev-app
+nop-dev/nop-dev-codegen
+nop-dyn/nop-dyn-app
+nop-dyn/nop-dyn-codegen
+nop-file/nop-file-app
+nop-file/nop-file-codegen
+nop-job/nop-job-app
+nop-job/nop-job-codegen
+nop-oauth/nop-oauth-app
+nop-oauth/nop-oauth-codegen
+nop-report/nop-report-app
+nop-report/nop-report-codegen
+nop-rule/nop-rule-app
+nop-rule/nop-rule-codegen
+nop-sys/nop-sys-app
+nop-sys/nop-sys-codegen
+nop-task/nop-task-app
+nop-tcc/nop-tcc-app
+nop-tcc/nop-tcc-codegen
+nop-wf/nop-wf-app
+nop-wf/nop-wf-codegen
+tests
 ```
 
 本仓库通过 Github Action 自动构建最新的
@@ -61,10 +102,10 @@
 
 ## Nop IDEA 插件安装
 
-点击下载 [%idea_plugin_name%](./%idea_plugin_name%)，
+点击下载 [nop-idea-plugin-1.0-SNAPSHOT.zip](./nop-idea-plugin-1.0-SNAPSHOT.zip)，
 完成后，进入 IDEA 的插件管理（`File -> Settings -> Plugins`），
 点击齿轮图标，并选择 `Install Plugin from Disk ...`，再选中已下载的插件
-`%idea_plugin_name%` 以将其安装到 IDEA 中。
+`nop-idea-plugin-1.0-SNAPSHOT.zip` 以将其安装到 IDEA 中。
 
 安装后需要清空 IDEA 缓存并重启：`File -> Invalidate Caches...`。
 
@@ -80,7 +121,7 @@
 ## Nop Cli 工具使用
 
 点击下载
-[%cli_jar_name%](./%cli_jar_path%)，
+[nop-cli-2.0.0-BETA.1.jar](./io/github/entropy-cloud/nop-cli/2.0.0-BETA.1/nop-cli-2.0.0-BETA.1.jar)，
 并在控制台执行相关命令：
 
 ```bash
@@ -89,12 +130,12 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 
 ${JAVA_HOME}/bin/java \
   -Dfile.encoding=UTF8 \
-  -jar ./%cli_jar_name% \
+  -jar ./nop-cli-2.0.0-BETA.1.jar \
   gen -t=/nop/templates/orm \
   ./model/nop-demo.orm.xlsx
 ```
 
-> 通过 `${JAVA_HOME}/bin/java -jar ./%cli_jar_name% gen -h`
+> 通过 `${JAVA_HOME}/bin/java -jar ./nop-cli-2.0.0-BETA.1.jar gen -h`
 > 可查看 `gen` 子命令的详细参数说明。
 > 其中，`-t` 选项所指向的是 Nop 工程中
 > `nop-codegen/src/main/resources/_vfs/nop/templates/orm`
@@ -199,7 +240,7 @@ ${JAVA_HOME}/bin/java \
   <parent>
     <groupId>io.github.entropy-cloud</groupId>
     <artifactId>nop-entropy</artifactId>
-    <version>%nop_version%</version>
+    <version>2.0.0-SNAPSHOT</version>
   </parent>
 
   <!-- ... -->
