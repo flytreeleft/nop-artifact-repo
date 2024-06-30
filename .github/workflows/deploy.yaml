@@ -40,61 +40,121 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Check whether Nop has new commits
+      - name: Prepare environments
         run: |
-          # 检查 dist 分支中记录 Nop 变更号的文件
-          NOP_BUILD_LOG_URL="https://raw.githubusercontent.com/${{ github.repository }}/dist/USAGE.md"
+          ####################################################
+          # 记录构建信息
+          ####################################################
+          NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
+          NOP_BUILD_LOG_FILE="${NOP_DIST_DIR}/USAGE.md"
+
+          NOP_BUILD_AT="$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S %:z')"
+          NOP_BUILD_TIMESTAMP="$(date +%s)"
+
+          echo "NOP_DIST_DIR=${NOP_DIST_DIR}" >> ${GITHUB_ENV}
+          echo "NOP_BUILD_LOG_FILE=${NOP_BUILD_LOG_FILE}" >> ${GITHUB_ENV}
+          echo "NOP_BUILD_AT=${NOP_BUILD_AT}" >> ${GITHUB_ENV}
+          echo "NOP_BUILD_TIMESTAMP=${NOP_BUILD_TIMESTAMP}" >> ${GITHUB_ENV}
+
+          ####################################################
+          # 记录版本信息
+          ####################################################
+          NOP_VERSION="$(cd ${GITHUB_WORKSPACE}/code && mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
           NOP_LATEST_COMMIT="$(cd ${GITHUB_WORKSPACE}/code && git log --format="%H" -n 1)"
 
+          echo "NOP_VERSION=${NOP_VERSION}" >> ${GITHUB_ENV}
+          echo "NOP_LATEST_COMMIT=${NOP_LATEST_COMMIT}" >> ${GITHUB_ENV}
+
+          NOP_EXTENSIONS_VERSION="$(cd ${GITHUB_WORKSPACE}/nop-extensions && mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          NOP_EXTENSIONS_LATEST_COMMIT="$(cd ${GITHUB_WORKSPACE}/nop-extensions && git log --format="%H" -n 1)"
+
+          echo "NOP_EXTENSIONS_VERSION=${NOP_EXTENSIONS_VERSION}" >> ${GITHUB_ENV}
+          echo "NOP_EXTENSIONS_LATEST_COMMIT=${NOP_EXTENSIONS_LATEST_COMMIT}" >> ${GITHUB_ENV}
+
+          ####################################################
+          # 检查 dist 分支中记录 Nop 变更号的文件
+          ####################################################
+          NOP_BUILD_LOG_URL="https://raw.githubusercontent.com/${{github.repository}}/dist/USAGE.md"
+          NOP_BUILD_LOG_CONTENT="$(curl ${NOP_BUILD_LOG_URL})"
+
           NOP_IGNORE_BUILDING=false
-          if [ -n "$(curl ${NOP_BUILD_LOG_URL} | grep ${NOP_LATEST_COMMIT})" ]; then
+          NOP_EXTENSIONS_IGNORE_BUILDING=false
+
+          if [ -n "$(echo "${NOP_BUILD_LOG_CONTENT}" | grep ${NOP_LATEST_COMMIT})" ]; then
             NOP_IGNORE_BUILDING=true
           fi
 
-          # 若是没有最新的提交，则无需构建
-          echo "NOP_IGNORE_BUILDING=${NOP_IGNORE_BUILDING}" >> ${GITHUB_ENV}
-          if [[ "${NOP_IGNORE_BUILDING}" = "true" ]]; then
-            echo "Ignore the building for commit ${NOP_LATEST_COMMIT}"
-          else
-            echo "Continue the building for commit ${NOP_LATEST_COMMIT}"
+          if [ -n "$(echo "${NOP_BUILD_LOG_CONTENT}" | grep ${NOP_EXTENSIONS_LATEST_COMMIT})" ]; then
+            NOP_EXTENSIONS_IGNORE_BUILDING=true
           fi
+
+          # 若 Nop 源码需更新，则其子项目也需一并更新
+          if [[ "${NOP_IGNORE_BUILDING}" != "true" ]]; then
+            NOP_EXTENSIONS_IGNORE_BUILDING=false
+          fi
+
+          NOP_ARTIFACTS_NEED_UPDATE=false
+          if [[ "${NOP_IGNORE_BUILDING}" != "true" || "${NOP_EXTENSIONS_IGNORE_BUILDING}" != "true" ]]; then
+            NOP_ARTIFACTS_NEED_UPDATE=true
+          fi
+
+          # 若是没有最新的提交，则无需构建
+          echo "NOP_ARTIFACTS_NEED_UPDATE=${NOP_ARTIFACTS_NEED_UPDATE}" >> ${GITHUB_ENV}
+          echo "NOP_IGNORE_BUILDING=${NOP_IGNORE_BUILDING}" >> ${GITHUB_ENV}
+          echo "NOP_EXTENSIONS_IGNORE_BUILDING=${NOP_EXTENSIONS_IGNORE_BUILDING}" >> ${GITHUB_ENV}
+
+          if [[ "${NOP_IGNORE_BUILDING}" = "true" ]]; then
+            echo "Ignore the Nop building for commit ${NOP_LATEST_COMMIT}"
+          else
+            echo "Continue the Nop building for commit ${NOP_LATEST_COMMIT}"
+          fi
+
+          if [[ "${NOP_EXTENSIONS_IGNORE_BUILDING}" = "true" ]]; then
+            echo "Ignore the Nop Extensions building for commit ${NOP_EXTENSIONS_LATEST_COMMIT}"
+          else
+            echo "Continue the Nop Extensions building for commit ${NOP_EXTENSIONS_LATEST_COMMIT}"
+          fi
+
+          ####################################################
+          # 收集不需要部署发布包的模块：以 mvn --projects '!webapp' 形式排除指定模块
+          ####################################################
+          # https://blog.jdriven.com/2022/11/mastering-maven-exclude-modules-from-build/
+          # Note: *-codegen 项目不参与部署，但会参与构建
+          NOP_IGNORED_MODULES="$( \
+            ( cd ${GITHUB_WORKSPACE}/code \
+              && grep -rl --include=pom.xml \
+                '<maven.deploy.skip>true</maven.deploy.skip>' . \
+              | sed 's|^\./||g; s|/pom.xml$||g;' \
+              \
+              ; find . -type d \( -name '*-demo' -o -name '*-demo2' \) \
+              | sed '/\/src\//d; /\/target\//d; s|^\./||g;' \
+              \
+              ; echo -e "nop-all-for-spring\nnop-demo/nop-spring-demo-no-orm"
+            ) \
+            | sed '/nop-report\/nop-report-demo/d' \
+            | sort | uniq \
+            | tr '\n' ' ' \
+          )"
+
+          echo "NOP_IGNORED_MODULES=${NOP_IGNORED_MODULES}" >> ${GITHUB_ENV}
+
+          cat ${GITHUB_ENV}
 
       - name: Build Nop packages
         if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
         working-directory: code
         run: |
-          NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
-          NOP_BUILD_LOG_FILE="${NOP_DIST_DIR}/USAGE.md"
-          NOP_LATEST_COMMIT="$(git log --format="%H" -n 1)"
-          NOP_BUILD_AT="$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S %:z')"
-
-          echo "Whether ignore building: ${{ env.NOP_IGNORE_BUILDING }}"
-
-          echo "$(date +%s)" > build_timestamp
-          rm -rf ${NOP_DIST_DIR}/io/github/entropy-cloud || echo "Ignore"
-
-          # 收集不需要部署发布包的模块：以 mvn --projects '!webapp' 形式排除指定模块
-          # https://blog.jdriven.com/2022/11/mastering-maven-exclude-modules-from-build/
-          # Note: *-codegen 项目不参与部署，但会参与构建
-          IGNORE_MODULES="$( \
-            ( grep -rl --include=pom.xml \
-                '<maven.deploy.skip>true</maven.deploy.skip>' . \
-              | sed 's|^\./||g; s|/pom.xml$||g;' \
-              ; find . -type d \( -name '*-demo' -o -name '*-demo2' \) \
-              | sed '/\/src\//d; /\/target\//d; s|^\./||g;' \
-              ; echo -e "nop-all-for-spring\nnop-demo/nop-spring-demo-no-orm"
-            ) | sed '/nop-report\/nop-report-demo/d' | sort | uniq \
-          )"
+          rm -rf ${{env.NOP_DIST_DIR}}/io/github/entropy-cloud || echo "Ignore"
 
           # 部署构建产物到本地指定目录
           # https://dzone.com/articles/using-github-as-maven-repository
           # https://stackoverflow.com/questions/12435283/adding-a-maven-distribution-repository-on-the-command-line#answer-39439854
           mvn -B \
-            -DaltDeploymentRepository=internal::default::file://${NOP_DIST_DIR} \
+            -DaltDeploymentRepository=internal::default::file://${{env.NOP_DIST_DIR}} \
             -DskipTests \
             -Dquarkus.package.type=uber-jar \
             --projects="$( \
-              echo "${IGNORE_MODULES}" \
+              echo ${{env.NOP_IGNORED_MODULES}} \
               | sed 's/ /\n/g' \
               | sed '/-codegen$/d; s|^|!|g' \
               | tr '\n' ',' \
@@ -102,66 +162,38 @@ jobs:
             --file pom.xml \
             clean deploy
 
-          NOP_VERSION="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
-          NOP_CLI_JAR_PATH="$(cd ${NOP_DIST_DIR} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')"
-          NOP_CLI_JAR_NAME="$(basename ${NOP_CLI_JAR_PATH})"
-
-          # 动态注入未部署的模块
-          IGNORE_MODULES="$(echo ${IGNORE_MODULES} | sed 's/ /::::/g')"
-          sed "s|%ignored_modules%|${IGNORE_MODULES}|g" -i ${NOP_BUILD_LOG_FILE}
-          sed 's/::::/\n/g' -i ${NOP_BUILD_LOG_FILE}
-          echo "${IGNORE_MODULES}" \
-          | sed 's/ /\n/g' \
-          | sed 's|^|**/|g; s|$|/|g' \
-          >> ${NOP_DIST_DIR}/.gitignore
-
-          sed "s|%build_at%|${NOP_BUILD_AT}|g" -i ${NOP_BUILD_LOG_FILE}
-          sed "s|%version%|${NOP_VERSION}|g" -i ${NOP_BUILD_LOG_FILE}
-          sed "s|%latest_commit%|${NOP_LATEST_COMMIT}|g" -i ${NOP_BUILD_LOG_FILE}
-          sed "s|%cli_jar_path%|${NOP_CLI_JAR_PATH}|g" -i ${NOP_BUILD_LOG_FILE}
-          sed "s|%cli_jar_name%|${NOP_CLI_JAR_NAME}|g" -i ${NOP_BUILD_LOG_FILE}
-
       - name: Build Nop IDEA plugin
         if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
         working-directory: code/nop-idea-plugin
         run: |
-          NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
-          NOP_BUILD_LOG_FILE="${NOP_DIST_DIR}/USAGE.md"
-
-          rm -f ${NOP_DIST_DIR}/nop-idea-plugin-*.zip
+          rm -f ${{env.NOP_DIST_DIR}}/nop-idea-plugin-*.zip
 
           bash ./gradlew buildPlugin
 
           NOP_IDEA_PLUGIN_NAME="$(basename `ls build/distributions/nop-idea-plugin-*.zip`)"
 
-          cp build/distributions/${NOP_IDEA_PLUGIN_NAME} ${NOP_DIST_DIR}/
-
-          NOP_BUILD_AT="$(cat ../build_timestamp)"
-          NOP_BUILD_END="$(date +%s)"
-          NOP_BUILD_PERIOD="$(echo "scale=2; ($NOP_BUILD_END - $NOP_BUILD_AT) / 60" | bc)"
-
-          sed "s|%build_period%|${NOP_BUILD_PERIOD}|g" -i ${NOP_BUILD_LOG_FILE}
-          sed "s|%idea_plugin_name%|${NOP_IDEA_PLUGIN_NAME}|g" -i ${NOP_BUILD_LOG_FILE}
+          cp build/distributions/${NOP_IDEA_PLUGIN_NAME} ${{env.NOP_DIST_DIR}}/
 
       - name: Build Nop Extensions
+        if: ${{ env.NOP_EXTENSIONS_IGNORE_BUILDING != 'true' }}
         working-directory: nop-extensions
         run: |
-          NOP_DIST_DIR="${GITHUB_WORKSPACE}/dist"
+          rm -rf ${{env.NOP_DIST_DIR}}/io/github/entropy-cloud/extensions || echo "Ignore"
 
-          rm -rf ${NOP_DIST_DIR}/io/github/entropy-cloud/extensions || echo "Ignore"
-
-          IGNORE_MODULES="$( \
+          IGNORED_MODULES="$( \
             ( grep -rl --include=pom.xml \
                 '<maven.deploy.skip>true</maven.deploy.skip>' . \
               | sed 's|^\./||g; s|/pom.xml$||g;' \
-            ) | sort | uniq \
+            ) \
+            | sort | uniq \
+            | tr '\n' ' ' \
           )"
 
           mvn -B \
-            -DaltDeploymentRepository=internal::default::file://${NOP_DIST_DIR} \
+            -DaltDeploymentRepository=internal::default::file://${{env.NOP_DIST_DIR}} \
             -DskipTests \
             --projects="$( \
-              echo "${IGNORE_MODULES}" \
+              echo ${IGNORED_MODULES} \
               | sed 's/ /\n/g' \
               | sed 's|^|!|g' \
               | tr '\n' ',' \
@@ -169,8 +201,42 @@ jobs:
             --file pom.xml \
             clean deploy
 
+      - name: Update building information
+        if: ${{ env.NOP_ARTIFACTS_NEED_UPDATE = 'true' }}
+        working-directory: dist
+        run: |
+          NOP_BUILD_START="${{env.NOP_BUILD_TIMESTAMP}}"
+          NOP_BUILD_END="$(date +%s)"
+          NOP_BUILD_PERIOD="$(echo "scale=2; ($NOP_BUILD_END - $NOP_BUILD_START) / 60" | bc)"
+
+          sed "s|%build_at%|${{env.NOP_BUILD_AT}}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
+          sed "s|%build_period%|${NOP_BUILD_PERIOD}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
+
+          sed "s|%nop_version%|${{env.NOP_VERSION}}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
+          sed "s|%nop_latest_commit%|${{env.NOP_LATEST_COMMIT}}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
+          sed "s|%nop_extensions_version%|${{env.NOP_EXTENSIONS_VERSION}}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
+          sed "s|%nop_extensions_latest_commit%|${{env.NOP_EXTENSIONS_LATEST_COMMIT}}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
+
+          NOP_IDEA_PLUGIN_NAME="$(basename `ls "${{env.NOP_DIST_DIR}}"/nop-idea-plugin-*.zip`)"
+          sed "s|%idea_plugin_name%|${NOP_IDEA_PLUGIN_NAME}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
+
+          NOP_CLI_JAR_PATH="$(cd ${{env.NOP_DIST_DIR}} && find io/github/entropy-cloud/nop-cli -name 'nop-cli-*.jar')"
+          NOP_CLI_JAR_NAME="$(basename ${NOP_CLI_JAR_PATH})"
+          sed "s|%cli_jar_path%|${NOP_CLI_JAR_PATH}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
+          sed "s|%cli_jar_name%|${NOP_CLI_JAR_NAME}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
+
+          # 动态注入未部署的模块
+          IGNORED_MODULES="$(echo ${{env.NOP_IGNORED_MODULES}} | sed 's/ /::::/g')"
+          sed "s|%nop_ignored_modules%|${IGNORED_MODULES}|g" -i ${{env.NOP_BUILD_LOG_FILE}}
+          sed 's/::::/\n/g' -i ${{env.NOP_BUILD_LOG_FILE}}
+
+          echo ${{env.NOP_IGNORED_MODULES}} \
+          | sed 's/ /\n/g' \
+          | sed 's|^|**/|g; s|$|/|g' \
+          >> ${{env.NOP_DIST_DIR}}/.gitignore
+
       - name: Commit Nop artifacts
-        if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
+        if: ${{ env.NOP_ARTIFACTS_NEED_UPDATE = 'true' }}
         working-directory: dist
         # Note：推送至当前仓库，需在仓库配置中启用 Action 的写权限
         run: |

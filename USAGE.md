@@ -6,10 +6,10 @@
 
 - 每日构建计划：凌晨 2 点（东八区）
 - 当前构建开始时间：`%build_at%`，构建总耗时 `%build_period%` 分钟
-- 当前 Nop 组件包版本号：`%version%`
-- 当前 Nop 源码变更版本：[%latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%latest_commit%)
+- 当前 Nop 组件包版本号：`%nop_version%`
+- 当前 Nop 源码变更版本：[%nop_latest_commit%](https://gitee.com/canonical-entropy/nop-entropy/tree/%nop_latest_commit%)
 - 额外构建的 Nop 项目如下：
-  - [canonical-entropy/nop-extensions](https://gitee.com/canonical-entropy/nop-extensions)
+  - [canonical-entropy/nop-extensions:%nop_extensions_version%](https://gitee.com/canonical-entropy/nop-extensions/tree/%nop_extensions_latest_commit%)
 
 > - 该仓库仅提供最后一次构建的产物，不保留既往构建产物，不能通过时间戳引入以前的构建版本
 > - 若在构建计划周期内，Nop 源码没有发生更新，则不会再重复构建源码并发布组件包
@@ -17,7 +17,7 @@
 注意，以下 Nop 工程模块的构建包未发布至本仓库（这些模块均不会被作为依赖引入到其他项目中）：
 
 ```ignore
-%ignored_modules%
+%nop_ignored_modules%
 ```
 
 本仓库通过 Github Action 自动构建最新的
@@ -199,7 +199,7 @@ ${JAVA_HOME}/bin/java \
   <parent>
     <groupId>io.github.entropy-cloud</groupId>
     <artifactId>nop-entropy</artifactId>
-    <version>%version%</version>
+    <version>%nop_version%</version>
   </parent>
 
   <!-- ... -->
