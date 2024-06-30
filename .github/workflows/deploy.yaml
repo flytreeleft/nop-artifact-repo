@@ -27,13 +27,13 @@ jobs:
           path: nop-extensions
 
       # 克隆当前仓库到 dist 目录，以便于收集发布产物并提交至 dist 分支
-      - name: Checkout Nop artifacts building repository
+      - name: Checkout Nop artifacts master repository
         uses: actions/checkout@v4
         with:
           repository: '${{ github.repository }}'
           path: dist
       # 用于临时存放构建产物
-      - name: Checkout Nop artifacts repository
+      - name: Checkout Nop artifacts dist repository
         uses: actions/checkout@v4
         with:
           repository: '${{ github.repository }}'
@@ -59,6 +59,7 @@ jobs:
           NOP_BUILD_AT="$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S %:z')"
           NOP_BUILD_TIMESTAMP="$(date +%s)"
 
+          echo "NOP_DIST_DIR=${NOP_DIST_DIR}" >> ${GITHUB_ENV}
           echo "NOP_DIST_TEMP_DIR=${NOP_DIST_TEMP_DIR}" >> ${GITHUB_ENV}
           echo "NOP_BUILD_LOG_FILE=${NOP_BUILD_LOG_FILE}" >> ${GITHUB_ENV}
           echo "NOP_BUILD_AT=${NOP_BUILD_AT}" >> ${GITHUB_ENV}
@@ -207,7 +208,7 @@ jobs:
             --file pom.xml \
             clean deploy
 
-      - name: Update building information
+      - name: Update Nop building information
         if: ${{ env.NOP_ARTIFACTS_NEED_UPDATE == 'true' }}
         working-directory: dist
         run: |
