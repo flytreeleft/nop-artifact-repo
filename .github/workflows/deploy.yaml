@@ -202,7 +202,7 @@ jobs:
             clean deploy
 
       - name: Update building information
-        if: ${{ env.NOP_ARTIFACTS_NEED_UPDATE = 'true' }}
+        if: ${{ env.NOP_ARTIFACTS_NEED_UPDATE == 'true' }}
         working-directory: dist
         run: |
           NOP_BUILD_START="${{env.NOP_BUILD_TIMESTAMP}}"
@@ -236,7 +236,7 @@ jobs:
           >> ${{env.NOP_DIST_DIR}}/.gitignore
 
       - name: Commit Nop artifacts
-        if: ${{ env.NOP_ARTIFACTS_NEED_UPDATE = 'true' }}
+        if: ${{ env.NOP_ARTIFACTS_NEED_UPDATE == 'true' }}
         working-directory: dist
         # Note：推送至当前仓库，需在仓库配置中启用 Action 的写权限
         run: |
