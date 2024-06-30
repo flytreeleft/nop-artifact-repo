@@ -150,9 +150,22 @@ jobs:
 
           rm -rf ${NOP_DIST_DIR}/io/github/entropy-cloud/extensions || echo "Ignore"
 
+          IGNORE_MODULES="$( \
+            ( grep -rl --include=pom.xml \
+                '<maven.deploy.skip>true</maven.deploy.skip>' . \
+              | sed 's|^\./||g; s|/pom.xml$||g;' \
+            ) | sort | uniq \
+          )"
+
           mvn -B \
             -DaltDeploymentRepository=internal::default::file://${NOP_DIST_DIR} \
             -DskipTests \
+            --projects="$( \
+              echo "${IGNORE_MODULES}" \
+              | sed 's/ /\n/g' \
+              | sed 's|^|!|g' \
+              | tr '\n' ',' \
+            )" \
             --file pom.xml \
             clean deploy
 
