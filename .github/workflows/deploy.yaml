@@ -89,13 +89,13 @@ jobs:
           NOP_IGNORE_BUILDING=false
           NOP_EXTENSIONS_IGNORE_BUILDING=false
 
-          # if [ -n "$(echo "${NOP_BUILD_LOG_CONTENT}" | grep ${NOP_LATEST_COMMIT})" ]; then
-          #   NOP_IGNORE_BUILDING=true
-          # fi
+          if [ -n "$(echo "${NOP_BUILD_LOG_CONTENT}" | grep ${NOP_LATEST_COMMIT})" ]; then
+            NOP_IGNORE_BUILDING=true
+          fi
 
-          # if [ -n "$(echo "${NOP_BUILD_LOG_CONTENT}" | grep ${NOP_EXTENSIONS_LATEST_COMMIT})" ]; then
-          #   NOP_EXTENSIONS_IGNORE_BUILDING=true
-          # fi
+          if [ -n "$(echo "${NOP_BUILD_LOG_CONTENT}" | grep ${NOP_EXTENSIONS_LATEST_COMMIT})" ]; then
+            NOP_EXTENSIONS_IGNORE_BUILDING=true
+          fi
 
           # 若 Nop 源码需更新，则其子项目也需一并更新
           if [[ "${NOP_IGNORE_BUILDING}" != "true" ]]; then
