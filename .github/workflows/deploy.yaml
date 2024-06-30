@@ -20,7 +20,7 @@ jobs:
         with:
           repository: entropy-cloud/nop-entropy
           path: code
-      - name: Checkout Nop Extensions source code
+      - name: Checkout Nop extensions source code
         uses: actions/checkout@v4
         with:
           repository: entropy-cloud/nop-extensions
@@ -31,6 +31,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: '${{ github.repository }}'
+          ref: dist
           path: dist
 
       - name: Set up JDK 17
@@ -55,6 +56,8 @@ jobs:
           echo "NOP_BUILD_LOG_FILE=${NOP_BUILD_LOG_FILE}" >> ${GITHUB_ENV}
           echo "NOP_BUILD_AT=${NOP_BUILD_AT}" >> ${GITHUB_ENV}
           echo "NOP_BUILD_TIMESTAMP=${NOP_BUILD_TIMESTAMP}" >> ${GITHUB_ENV}
+
+          curl https://raw.githubusercontent.com/${{github.repository}}/master/USAGE.md -o ${NOP_BUILD_LOG_FILE}
 
           ####################################################
           # 记录版本信息
@@ -110,9 +113,9 @@ jobs:
           fi
 
           if [[ "${NOP_EXTENSIONS_IGNORE_BUILDING}" = "true" ]]; then
-            echo "Ignore the Nop Extensions building for commit ${NOP_EXTENSIONS_LATEST_COMMIT}"
+            echo "Ignore the Nop extensions building for commit ${NOP_EXTENSIONS_LATEST_COMMIT}"
           else
-            echo "Continue the Nop Extensions building for commit ${NOP_EXTENSIONS_LATEST_COMMIT}"
+            echo "Continue the Nop extensions building for commit ${NOP_EXTENSIONS_LATEST_COMMIT}"
           fi
 
           ####################################################
@@ -137,8 +140,6 @@ jobs:
           )"
 
           echo "NOP_IGNORED_MODULES=${NOP_IGNORED_MODULES}" >> ${GITHUB_ENV}
-
-          cat ${GITHUB_ENV}
 
       - name: Build Nop packages
         if: ${{ env.NOP_IGNORE_BUILDING != 'true' }}
@@ -174,7 +175,7 @@ jobs:
 
           cp build/distributions/${NOP_IDEA_PLUGIN_NAME} ${{env.NOP_DIST_DIR}}/
 
-      - name: Build Nop Extensions
+      - name: Build Nop extensions
         if: ${{ env.NOP_EXTENSIONS_IGNORE_BUILDING != 'true' }}
         working-directory: nop-extensions
         run: |
